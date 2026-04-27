@@ -13,12 +13,20 @@ import type { DonneesFacture } from "@/types";
 import { calculerTotaux, formatMontant, formatDateFr } from "@/lib/utils";
 import { buildMobileMoneyPayload } from "./Apercu";
 
+const GREEN = "#1A6B3C";
+const GOLD = "#C8972A";
+const GRIS = "#6B6B6B";
+const TEXTE = "#0D0D0D";
+const ROUGE = "#D94F3D";
+const BG = "#F7F5F0";
+const BORDER = "#E2DDD6";
+
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontFamily: "Helvetica",
     backgroundColor: "#FFFFFF",
-    color: "#0D0D0D",
+    color: TEXTE,
   },
   header: {
     flexDirection: "row",
@@ -32,7 +40,7 @@ const styles = StyleSheet.create({
   logoInitiales: {
     width: 60,
     height: 60,
-    backgroundColor: "#1A6B3C",
+    backgroundColor: GREEN,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -44,50 +52,50 @@ const styles = StyleSheet.create({
   nomEntreprise: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+    color: TEXTE,
     marginTop: 8,
   },
-  texteGris: { fontSize: 10, color: "#6B6B6B", marginTop: 2 },
+  texteGris: { fontSize: 10, color: GRIS, marginTop: 2 },
   typeDocument: {
     fontSize: 28,
     fontFamily: "Helvetica-Bold",
-    color: "#1A6B3C",
+    color: GREEN,
     textAlign: "right",
   },
   numero: {
     fontSize: 11,
-    color: "#6B6B6B",
+    color: GRIS,
     textAlign: "right",
     marginTop: 4,
   },
   separateurVert: {
     height: 2,
-    backgroundColor: "#1A6B3C",
+    backgroundColor: GREEN,
     opacity: 0.2,
     marginVertical: 20,
   },
   labelSection: {
     fontSize: 9,
-    color: "#6B6B6B",
+    color: GRIS,
     textTransform: "uppercase",
     letterSpacing: 1.5,
   },
   nomClient: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+    color: TEXTE,
     marginTop: 6,
   },
   tableHeader: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#E2DDD6",
+    borderBottomColor: BORDER,
     paddingBottom: 8,
     marginTop: 24,
   },
   tableHeaderText: {
     fontSize: 9,
-    color: "#6B6B6B",
+    color: GRIS,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
@@ -98,124 +106,185 @@ const styles = StyleSheet.create({
     borderBottomColor: "#F0EDE6",
     alignItems: "flex-start",
   },
-  cellDescription: { flex: 3, fontSize: 12, color: "#0D0D0D", paddingRight: 8 },
-  cellRight: { flex: 1, fontSize: 11, color: "#6B6B6B", textAlign: "right" },
+  cellDescription: { flex: 3, fontSize: 11, color: TEXTE, paddingRight: 8 },
+  cellDescNote: { fontSize: 9, color: ROUGE, marginTop: 2 },
+  cellRight: { flex: 1, fontSize: 10, color: GRIS, textAlign: "right" },
   cellTotal: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+    color: TEXTE,
     textAlign: "right",
   },
-  totauxContainer: { alignItems: "flex-end", marginTop: 24 },
-  totalLine: { flexDirection: "row", marginBottom: 6 },
+  totauxContainer: { alignItems: "flex-end", marginTop: 20 },
+  totalLine: { flexDirection: "row", marginBottom: 5 },
   totalLabel: {
-    fontSize: 11,
-    color: "#6B6B6B",
-    width: 100,
+    fontSize: 10,
+    color: GRIS,
+    width: 130,
     textAlign: "right",
     marginRight: 12,
   },
   totalValue: {
-    fontSize: 11,
-    color: "#0D0D0D",
+    fontSize: 10,
+    color: TEXTE,
+    width: 110,
+    textAlign: "right",
+  },
+  totalValueRouge: {
+    fontSize: 10,
+    color: ROUGE,
     width: 110,
     textAlign: "right",
   },
   totalDivider: {
-    width: 222,
+    width: 252,
     height: 1,
-    backgroundColor: "#E2DDD6",
+    backgroundColor: BORDER,
     marginVertical: 8,
   },
   totalTTCLabel: {
     fontSize: 12,
-    color: "#0D0D0D",
-    width: 100,
+    color: TEXTE,
+    width: 130,
     textAlign: "right",
     marginRight: 12,
-    marginTop: 6,
     fontFamily: "Helvetica-Bold",
   },
   totalTTC: {
     fontSize: 22,
     fontFamily: "Helvetica-Bold",
-    color: "#1A6B3C",
+    color: GREEN,
+    width: 110,
+    textAlign: "right",
+  },
+  soldeLabelOr: {
+    fontSize: 12,
+    color: TEXTE,
+    width: 130,
+    textAlign: "right",
+    marginRight: 12,
+    fontFamily: "Helvetica-Bold",
+  },
+  soldeOr: {
+    fontSize: 18,
+    fontFamily: "Helvetica-Bold",
+    color: GOLD,
     width: 110,
     textAlign: "right",
   },
   paiementBox: {
-    marginTop: 28,
+    marginTop: 24,
     padding: 14,
-    backgroundColor: "#F7F5F0",
+    backgroundColor: BG,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: "#E2DDD6",
+    borderColor: BORDER,
     borderStyle: "solid",
     flexDirection: "row",
     gap: 14,
   },
   qrImage: {
-    width: 96,
-    height: 96,
+    width: 88,
+    height: 88,
     backgroundColor: "#FFFFFF",
     padding: 2,
   },
   paiementLabel: {
     fontSize: 8,
-    color: "#6B6B6B",
+    color: GRIS,
     textTransform: "uppercase",
     letterSpacing: 1.5,
     fontFamily: "Helvetica-Bold",
   },
   paiementTitre: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+    color: TEXTE,
     marginTop: 4,
   },
-  paiementSubText: { fontSize: 10, color: "#6B6B6B", marginTop: 2 },
+  paiementSubText: { fontSize: 9, color: GRIS, marginTop: 2 },
   paiementHelp: {
-    fontSize: 9,
-    color: "#6B6B6B",
+    fontSize: 8,
+    color: GRIS,
     marginTop: 6,
     fontStyle: "italic",
   },
   ribValue: {
-    fontSize: 10,
-    color: "#0D0D0D",
+    fontSize: 9,
+    color: TEXTE,
     fontFamily: "Courier",
     marginTop: 4,
     letterSpacing: 0.5,
   },
+  conditionsBox: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: BG,
+    borderLeftWidth: 3,
+    borderLeftColor: GOLD,
+    borderLeftStyle: "solid",
+  },
+  conditionsLabel: {
+    fontSize: 7,
+    color: GRIS,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 4,
+  },
+  conditionsText: {
+    fontSize: 9,
+    color: TEXTE,
+    fontStyle: "italic",
+    lineHeight: 1.5,
+  },
   pied: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 28,
-    paddingTop: 16,
+    alignItems: "flex-end",
+    marginTop: 24,
+    paddingTop: 14,
     borderTopWidth: 2,
-    borderTopColor: "#1A6B3C",
+    borderTopColor: GREEN,
     borderTopStyle: "solid",
   },
-  piedTexte: { fontSize: 10, color: "#6B6B6B" },
+  piedTexte: { fontSize: 10, color: GRIS },
   piedLabel: {
-    fontSize: 9,
-    color: "#6B6B6B",
+    fontSize: 8,
+    color: GRIS,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 4,
   },
   note: {
-    fontSize: 11,
-    color: "#6B6B6B",
+    fontSize: 10,
+    color: GRIS,
     fontStyle: "italic",
-    maxWidth: 220,
+    maxWidth: 200,
+    textAlign: "right",
+  },
+  signatureContainer: {
+    alignItems: "flex-end",
+  },
+  signatureImage: {
+    height: 52,
+    width: 140,
+    objectFit: "contain",
+  },
+  signatureLabel: {
+    fontSize: 7,
+    color: GRIS,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginTop: 3,
     textAlign: "right",
   },
   barreBas: {
     height: 6,
-    backgroundColor: "#1A6B3C",
-    marginTop: 24,
+    backgroundColor: GREEN,
+    marginTop: 20,
     borderRadius: 2,
   },
 });
@@ -236,7 +305,20 @@ export function FacturePDFDocument({
   donneesFacture: d,
   qrDataUrl,
 }: FacturePDFProps) {
-  const { sousTotal, totalTva, total } = calculerTotaux(d.lignes);
+  const {
+    sousTotal,
+    sousTotalNetLignes,
+    remiseMontant,
+    sousTotalFinal,
+    totalTva,
+    total,
+    aDesRemises,
+  } = calculerTotaux(d.lignes, d.remiseGlobale || 0);
+
+  const aDesRemisesParLigne = d.lignes.some((l) => (l.remise || 0) > 0);
+  const acompte = d.acompte || 0;
+  const soldeRestant = Math.max(0, total - acompte);
+
   const showQr =
     d.modePaiement === "Mobile Money" &&
     d.numeroMobileMoney.trim().length > 0 &&
@@ -248,6 +330,7 @@ export function FacturePDFDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* HEADER */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             {d.logoEntreprise ? (
@@ -294,6 +377,7 @@ export function FacturePDFDocument({
 
         <View style={styles.separateurVert} />
 
+        {/* CLIENT */}
         <View>
           <Text style={styles.labelSection}>Facturé à</Text>
           <Text style={styles.nomClient}>
@@ -315,34 +399,46 @@ export function FacturePDFDocument({
           ) : null}
         </View>
 
+        {/* TABLEAU SERVICES */}
         <View style={styles.tableHeader}>
           <Text style={[styles.tableHeaderText, { flex: 3 }]}>Description</Text>
           <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
             Qté
           </Text>
           <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            P.U.
+            P.U. HT
           </Text>
-          <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
+          <Text style={[styles.tableHeaderText, { flex: 0.7, textAlign: "right" }]}>
             TVA
           </Text>
           <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            Total
+            Total TTC
           </Text>
         </View>
 
         {d.lignes.map((l) => {
-          const totalLigne = l.quantite * l.prixUnitaire * (1 + l.tva / 100);
+          const totalLigne =
+            l.quantite *
+            l.prixUnitaire *
+            (1 - (l.remise || 0) / 100) *
+            (1 + l.tva / 100);
           return (
             <View key={l.id} style={styles.tableRow}>
-              <Text style={styles.cellDescription}>
-                {l.description || "—"}
-              </Text>
+              <View style={{ flex: 3, paddingRight: 8 }}>
+                <Text style={{ fontSize: 11, color: TEXTE }}>
+                  {l.description || "—"}
+                </Text>
+                {(l.remise || 0) > 0 && (
+                  <Text style={styles.cellDescNote}>
+                    Remise {l.remise}%
+                  </Text>
+                )}
+              </View>
               <Text style={styles.cellRight}>{l.quantite}</Text>
               <Text style={styles.cellRight}>
                 {formatMontant(l.prixUnitaire, d.devise)}
               </Text>
-              <Text style={styles.cellRight}>{l.tva}%</Text>
+              <Text style={[styles.cellRight, { flex: 0.7 }]}>{l.tva}%</Text>
               <Text style={styles.cellTotal}>
                 {formatMontant(totalLigne, d.devise)}
               </Text>
@@ -350,6 +446,7 @@ export function FacturePDFDocument({
           );
         })}
 
+        {/* TOTAUX */}
         <View style={styles.totauxContainer}>
           <View style={styles.totalLine}>
             <Text style={styles.totalLabel}>Sous-total HT</Text>
@@ -357,21 +454,72 @@ export function FacturePDFDocument({
               {formatMontant(sousTotal, d.devise)}
             </Text>
           </View>
+
+          {aDesRemisesParLigne && (
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Remises lignes</Text>
+              <Text style={styles.totalValueRouge}>
+                − {formatMontant(sousTotal - sousTotalNetLignes, d.devise)}
+              </Text>
+            </View>
+          )}
+
+          {(d.remiseGlobale || 0) > 0 && (
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>
+                Remise globale ({d.remiseGlobale}%)
+              </Text>
+              <Text style={styles.totalValueRouge}>
+                − {formatMontant(remiseMontant, d.devise)}
+              </Text>
+            </View>
+          )}
+
+          {aDesRemises && (
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Sous-total HT net</Text>
+              <Text style={styles.totalValue}>
+                {formatMontant(sousTotalFinal, d.devise)}
+              </Text>
+            </View>
+          )}
+
           <View style={styles.totalLine}>
             <Text style={styles.totalLabel}>TVA</Text>
             <Text style={styles.totalValue}>
               {formatMontant(totalTva, d.devise)}
             </Text>
           </View>
+
           <View style={styles.totalDivider} />
+
           <View style={styles.totalLine}>
             <Text style={styles.totalTTCLabel}>Total TTC</Text>
             <Text style={styles.totalTTC}>
               {formatMontant(total, d.devise)}
             </Text>
           </View>
+
+          {acompte > 0 && (
+            <>
+              <View style={styles.totalLine}>
+                <Text style={styles.totalLabel}>Acompte perçu</Text>
+                <Text style={styles.totalValueRouge}>
+                  − {formatMontant(acompte, d.devise)}
+                </Text>
+              </View>
+              <View style={[styles.totalDivider, { marginTop: 4 }]} />
+              <View style={styles.totalLine}>
+                <Text style={styles.soldeLabelOr}>Solde restant à payer</Text>
+                <Text style={styles.soldeOr}>
+                  {formatMontant(soldeRestant, d.devise)}
+                </Text>
+              </View>
+            </>
+          )}
         </View>
 
+        {/* PAIEMENT (QR / BANQUE) */}
         {(showQr || showBank) && (
           <View style={styles.paiementBox}>
             {showQr && qrDataUrl && (
@@ -414,13 +562,31 @@ export function FacturePDFDocument({
           </View>
         )}
 
+        {/* CONDITIONS DE PAIEMENT */}
+        {d.conditionsPaiement ? (
+          <View style={styles.conditionsBox}>
+            <Text style={styles.conditionsLabel}>Conditions de paiement</Text>
+            <Text style={styles.conditionsText}>{d.conditionsPaiement}</Text>
+          </View>
+        ) : null}
+
+        {/* PIED */}
         <View style={styles.pied}>
           <View>
             <Text style={styles.piedLabel}>Mode de paiement</Text>
             <Text style={styles.piedTexte}>{d.modePaiement}</Text>
+            {d.noteClient ? (
+              <Text style={[styles.piedTexte, { fontStyle: "italic", marginTop: 4 }]}>
+                {d.noteClient}
+              </Text>
+            ) : null}
           </View>
-          {d.noteClient ? (
-            <Text style={styles.note}>{d.noteClient}</Text>
+
+          {d.signatureImage ? (
+            <View style={styles.signatureContainer}>
+              <Image src={d.signatureImage} style={styles.signatureImage} />
+              <Text style={styles.signatureLabel}>Signature & cachet</Text>
+            </View>
           ) : (
             <Text> </Text>
           )}

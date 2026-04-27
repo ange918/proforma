@@ -26,11 +26,10 @@ function PaiementIcon({ mode }: { mode: string }) {
 }
 
 export function buildMobileMoneyPayload(d: DonneesFacture): string {
-  const { total } = calculerTotaux(d.lignes);
+  const { total } = calculerTotaux(d.lignes, d.remiseGlobale || 0);
   const numero = d.numeroMobileMoney.trim();
   const ref = d.numeroFacture;
   const montant = Math.round(total);
-  // Format texte universel — scannable, lisible, et utilisable comme note de paiement
   return [
     `Paiement ${d.typeDocument}`,
     `Bénéficiaire: ${d.nomEntreprise || "—"}`,
@@ -44,7 +43,20 @@ export function buildMobileMoneyPayload(d: DonneesFacture): string {
 }
 
 export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
-  const { sousTotal, totalTva, total } = calculerTotaux(donnees.lignes);
+  const {
+    sousTotal,
+    sousTotalNetLignes,
+    remiseMontant,
+    sousTotalFinal,
+    totalTva,
+    total,
+    aDesRemises,
+  } = calculerTotaux(donnees.lignes, donnees.remiseGlobale || 0);
+
+  const aDesRemisesParLigne = donnees.lignes.some((l) => (l.remise || 0) > 0);
+  const acompte = donnees.acompte || 0;
+  const soldeRestant = Math.max(0, total - acompte);
+
   const aDesLignes = donnees.lignes.some(
     (l) => l.description.trim() || l.prixUnitaire > 0,
   );
@@ -305,17 +317,17 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
-              gap: 8,
+              gridTemplateColumns: "3fr 0.5fr 1fr 0.5fr 1fr",
+              gap: 6,
               borderBottom: "1px solid var(--border)",
               paddingBottom: 8,
             }}
           >
-            {["Description", "Qté", "P.U.", "TVA", "Total"].map((h, i) => (
+            {["Description", "Qté", "P.U.", "TVA", "Total TTC"].map((h, i) => (
               <div
                 key={h}
                 style={{
-                  fontSize: 11,
+                  fontSize: 10,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
                   color: "var(--text-muted)",
@@ -330,14 +342,17 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
           {aDesLignes ? (
             donnees.lignes.map((l) => {
               const totalLigne =
-                l.quantite * l.prixUnitaire * (1 + l.tva / 100);
+                l.quantite *
+                l.prixUnitaire *
+                (1 - (l.remise || 0) / 100) *
+                (1 + l.tva / 100);
               return (
                 <div
                   key={l.id}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
-                    gap: 8,
+                    gridTemplateColumns: "3fr 0.5fr 1fr 0.5fr 1fr",
+                    gap: 6,
                     padding: "10px 0",
                     borderBottom: "1px solid #F0EDE6",
                     alignItems: "start",
@@ -345,7 +360,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                 >
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       color: "var(--text)",
                       wordBreak: "break-word",
                     }}
@@ -357,10 +372,21 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                         Description du service
                       </span>
                     )}
+                    {(l.remise || 0) > 0 && (
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--red)",
+                          marginTop: 2,
+                        }}
+                      >
+                        Remise {l.remise}%
+                      </div>
+                    )}
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       color: "var(--text-muted)",
                       textAlign: "right",
                     }}
@@ -369,7 +395,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       color: "var(--text-muted)",
                       textAlign: "right",
                     }}
@@ -378,7 +404,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       color: "var(--text-muted)",
                       textAlign: "right",
                     }}
@@ -388,7 +414,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   <div
                     className="font-unbounded"
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: 600,
                       color: "var(--text)",
                       textAlign: "right",
@@ -418,31 +444,78 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
         <div
           style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}
         >
-          <div style={{ minWidth: 240 }}>
+          <div style={{ minWidth: 260 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 13,
+                fontSize: 12,
                 color: "var(--text-muted)",
-                padding: "4px 0",
+                padding: "3px 0",
               }}
             >
               <span>Sous-total HT</span>
               <span>{formatMontant(sousTotal, donnees.devise)}</span>
             </div>
+
+            {aDesRemisesParLigne && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  color: "var(--red)",
+                  padding: "3px 0",
+                }}
+              >
+                <span>Remises lignes</span>
+                <span>− {formatMontant(sousTotal - sousTotalNetLignes, donnees.devise)}</span>
+              </div>
+            )}
+
+            {(donnees.remiseGlobale || 0) > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  color: "var(--red)",
+                  padding: "3px 0",
+                }}
+              >
+                <span>Remise globale ({donnees.remiseGlobale}%)</span>
+                <span>− {formatMontant(remiseMontant, donnees.devise)}</span>
+              </div>
+            )}
+
+            {aDesRemises && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  padding: "3px 0",
+                }}
+              >
+                <span>Sous-total HT net</span>
+                <span>{formatMontant(sousTotalFinal, donnees.devise)}</span>
+              </div>
+            )}
+
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 13,
+                fontSize: 12,
                 color: "var(--text-muted)",
-                padding: "4px 0",
+                padding: "3px 0",
               }}
             >
               <span>TVA</span>
               <span>{formatMontant(totalTva, donnees.devise)}</span>
             </div>
+
             <div
               style={{
                 height: 1,
@@ -474,6 +547,51 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                 {formatMontant(total, donnees.devise)}
               </span>
             </div>
+
+            {acompte > 0 && (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    padding: "3px 0",
+                    marginTop: 6,
+                  }}
+                >
+                  <span>Acompte perçu</span>
+                  <span>− {formatMontant(acompte, donnees.devise)}</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    marginTop: 4,
+                    paddingTop: 8,
+                    borderTop: "1px solid var(--border)",
+                  }}
+                >
+                  <span
+                    className="font-jakarta"
+                    style={{ fontSize: 13, color: "var(--text)", fontWeight: 600 }}
+                  >
+                    Solde restant
+                  </span>
+                  <span
+                    className="font-unbounded"
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 18,
+                      color: "var(--gold)",
+                    }}
+                  >
+                    {formatMontant(soldeRestant, donnees.devise)}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -481,13 +599,13 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
         {(showQr || showBank) && (
           <div
             style={{
-              marginTop: 28,
-              padding: 16,
+              marginTop: 24,
+              padding: 14,
               background: "var(--bg)",
               borderRadius: 8,
               border: "1px solid var(--border)",
               display: "flex",
-              gap: 16,
+              gap: 14,
               alignItems: "flex-start",
             }}
           >
@@ -495,8 +613,8 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
               <>
                 <div
                   style={{
-                    width: 96,
-                    height: 96,
+                    width: 88,
+                    height: 88,
                     background: "#fff",
                     border: "1px solid var(--border)",
                     borderRadius: 6,
@@ -514,14 +632,14 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                       style={{ width: "100%", height: "100%" }}
                     />
                   ) : (
-                    <QrCode size={32} color="var(--text-muted)" />
+                    <QrCode size={28} color="var(--text-muted)" />
                   )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     className="font-jakarta"
                     style={{
-                      fontSize: 10,
+                      fontSize: 9,
                       textTransform: "uppercase",
                       letterSpacing: "0.15em",
                       color: "var(--text-muted)",
@@ -533,7 +651,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   <div
                     className="font-unbounded"
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: 600,
                       color: "var(--text)",
                       marginTop: 4,
@@ -544,7 +662,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   {donnees.operateurMobileMoney && (
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         color: "var(--text-muted)",
                         marginTop: 2,
                       }}
@@ -554,9 +672,9 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   )}
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 10,
                       color: "var(--text-muted)",
-                      marginTop: 6,
+                      marginTop: 5,
                       lineHeight: 1.4,
                     }}
                   >
@@ -570,7 +688,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                 <div
                   className="font-jakarta"
                   style={{
-                    fontSize: 10,
+                    fontSize: 9,
                     textTransform: "uppercase",
                     letterSpacing: "0.15em",
                     color: "var(--text-muted)",
@@ -583,7 +701,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                   <div
                     className="font-unbounded"
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: 600,
                       color: "var(--text)",
                       marginTop: 6,
@@ -595,7 +713,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                 {donnees.ribIban && (
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: 11,
                       color: "var(--text)",
                       marginTop: 4,
                       fontFamily:
@@ -610,7 +728,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
                 {donnees.codeSwift && (
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 10,
                       color: "var(--text-muted)",
                       marginTop: 4,
                     }}
@@ -632,51 +750,116 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
           </div>
         )}
 
+        {/* CONDITIONS DE PAIEMENT */}
+        {donnees.conditionsPaiement && (
+          <div
+            style={{
+              marginTop: 20,
+              padding: "10px 14px",
+              background: "var(--bg)",
+              borderRadius: 6,
+              borderLeft: "3px solid var(--gold)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 9,
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+                color: "var(--text-muted)",
+                marginBottom: 4,
+                fontWeight: 600,
+              }}
+            >
+              Conditions de paiement
+            </div>
+            <div
+              className="font-lora-italic"
+              style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5 }}
+            >
+              {donnees.conditionsPaiement}
+            </div>
+          </div>
+        )}
+
         {/* PIED */}
         <div
           style={{
             height: 2,
             background: "var(--green)",
             opacity: 0.15,
-            marginTop: 28,
+            marginTop: 24,
           }}
         />
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: 20,
-            marginTop: 16,
+            alignItems: "flex-end",
+            gap: 16,
+            marginTop: 14,
           }}
         >
           <div
             style={{
-              fontSize: 12,
+              fontSize: 11,
               color: "var(--text-muted)",
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 5,
             }}
           >
             <PaiementIcon mode={donnees.modePaiement} />
-            <div>
-              <div>{donnees.modePaiement}</div>
-            </div>
+            <div>{donnees.modePaiement}</div>
           </div>
-          {donnees.noteClient && (
-            <div
-              className="font-lora-italic"
-              style={{
-                fontSize: 13,
-                color: "var(--text-muted)",
-                maxWidth: 220,
-                textAlign: "right",
-              }}
-            >
-              {donnees.noteClient}
-            </div>
-          )}
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 6,
+            }}
+          >
+            {donnees.signatureImage && (
+              <div>
+                <img
+                  src={donnees.signatureImage}
+                  alt="signature"
+                  style={{
+                    height: 52,
+                    maxWidth: 140,
+                    objectFit: "contain",
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: 9,
+                    color: "var(--text-muted)",
+                    textAlign: "right",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    marginTop: 2,
+                  }}
+                >
+                  Signature & cachet
+                </div>
+              </div>
+            )}
+            {donnees.noteClient && (
+              <div
+                className="font-lora-italic"
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-muted)",
+                  maxWidth: 180,
+                  textAlign: "right",
+                }}
+              >
+                {donnees.noteClient}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* BARRE DECORATIVE */}
@@ -686,7 +869,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
             background:
               "linear-gradient(90deg, var(--green), var(--gold))",
             borderRadius: "0 0 4px 4px",
-            marginTop: 24,
+            marginTop: 20,
             marginLeft: -40,
             marginRight: -40,
             marginBottom: -40,

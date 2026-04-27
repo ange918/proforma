@@ -4,6 +4,7 @@ export interface LigneService {
   quantite: number;
   prixUnitaire: number;
   tva: number;
+  remise: number;
 }
 
 export type TypeDocument = "Facture" | "Devis" | "Proforma";
@@ -44,5 +45,24 @@ export interface DonneesFacture {
 
   lignes: LigneService[];
 
+  remiseGlobale: number;
+  acompte: number;
+  conditionsPaiement: string;
+  signatureImage: string | null;
+
   noteClient: string;
+}
+
+export interface TemplateService {
+  id: string;
+  nom: string;
+  description: string;
+  prixUnitaire: number;
+  tva: number;
+}
+
+export interface EntreeHistorique {
+  id: string;
+  dateCreation: string;
+  donnees: DonneesFacture;
 }
