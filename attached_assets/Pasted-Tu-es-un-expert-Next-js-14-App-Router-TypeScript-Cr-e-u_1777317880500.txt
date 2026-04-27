@@ -1,0 +1,431 @@
+Tu es un expert Next.js 14 App Router TypeScript.
+Crée une application web simple appelée ProformaAfrica.
+Zéro backend, zéro auth, zéro base de données.
+Un seul objectif : remplir un formulaire et générer une facture PDF téléchargeable.
+
+---
+
+## 📦 DÉPENDANCES À INSTALLER
+
+npm install @react-pdf/renderer
+npm install @phosphor-icons/react
+
+---
+
+## 🏗️ STRUCTURE
+
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx          ← formulaire + aperçu
+│   └── globals.css
+├── components/
+│   ├── Formulaire.tsx    ← tout le formulaire
+│   ├── Apercu.tsx        ← aperçu visuel live
+│   └── FacturePDF.tsx    ← document PDF généré
+├── lib/
+│   └── utils.ts
+└── types.ts
+
+---
+
+## 🎨 DESIGN
+
+### Palette CSS variables
+:root {
+  --bg: #F7F5F0;
+  --card: #FFFFFF;
+  --green: #1A6B3C;
+  --green-light: #E8F5EE;
+  --green-dark: #0F4526;
+  --gold: #C8972A;
+  --text: #0D0D0D;
+  --text-muted: #6B6B6B;
+  --border: #E2DDD6;
+  --red: #D94F3D;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+### Typographie (next/font/google)
+- Unbounded (400, 600, 700) → titres, logo, montants
+- Plus Jakarta Sans (400, 500, 600) → labels, inputs, corps
+
+### Icônes : @phosphor-icons/react uniquement
+
+---
+
+## 📄 TYPES — src/types.ts
+
+export interface LigneService {
+  id: string
+  description: string
+  quantite: number
+  prixUnitaire: number
+  tva: number
+}
+
+export interface DonneesFacture {
+  // Émetteur
+  nomEntreprise: string
+  villeEntreprise: string
+  paysEntreprise: string
+  emailEntreprise: string
+  telephoneEntreprise: string
+  logoEntreprise: string | null   // base64
+
+  // Client
+  nomClient: string
+  entrepriseClient: string
+  villeClient: string
+  paysClient: string
+  emailClient: string
+  telephoneClient: string
+
+  // Document
+  numeroFacture: string
+  typeDocument: 'Facture' | 'Devis' | 'Proforma'
+  dateEmission: string
+  dateEcheance: string
+  devise: 'XOF' | 'XAF' | 'MAD' | 'EUR' | 'USD'
+  modePaiement: 'Mobile Money' | 'Virement bancaire' | 'Espèces' | 'Chèque'
+  numeroMobileMoney: string
+
+  // Services
+  lignes: LigneService[]
+
+  // Notes
+  noteClient: string
+}
+
+---
+
+## 🔧 UTILITAIRES — src/lib/utils.ts
+
+export function formatMontant(montant: number, devise: string): string {
+  const locales: Record<string, string> = {
+    XOF: 'fr-FR', XAF: 'fr-FR', MAD: 'fr-MA', EUR: 'fr-FR', USD: 'en-US'
+  }
+  const deviseISO = (devise === 'XOF' || devise === 'XAF') ? 'XOF' : devise
+  return new Intl.NumberFormat(locales[devise] || 'fr-FR', {
+    style: 'currency',
+    currency: deviseISO,
+    minimumFractionDigits: 0,
+  }).format(montant)
+}
+
+export function calculerTotaux(lignes: { quantite: number; prixUnitaire: number; tva: number }[]) {
+  const sousTotal = lignes.reduce((s, l) => s + l.quantite * l.prixUnitaire, 0)
+  const totalTva = lignes.reduce((s, l) => s + (l.quantite * l.prixUnitaire * l.tva / 100), 0)
+  return { sousTotal, totalTva, total: sousTotal + totalTva }
+}
+
+export function genererNumero(type: string): string {
+  const p: Record<string, string> = { Facture: 'FAC', Devis: 'DEV', Proforma: 'PRO' }
+  const prefix = p[type] || 'DOC'
+  const annee = new Date().getFullYear()
+  const rand = Math.floor(Math.random() * 900) + 100
+  return `${prefix}-${annee}-${rand}`
+}
+
+---
+
+## 🖥️ PAGE PRINCIPALE — src/app/page.tsx
+
+'use client'
+Layout 2 colonnes sticky côte à côte :
+- Gauche (50%) : Formulaire.tsx — scrollable
+- Droite (50%) : Apercu.tsx — sticky top-0, hauteur 100vh, overflow-y auto
+
+Sur mobile : empilé (formulaire en haut, aperçu en bas)
+
+useState donneesFacture initialisé avec valeurs vides + 1 ligne service vide
+Passer donneesFacture et setDonneesFacture au Formulaire
+Passer donneesFacture en lecture seule à Apercu
+
+---
+
+## 📝 FORMULAIRE — src/components/Formulaire.tsx
+
+'use client'
+background var(--bg), padding 32px, height 100vh, overflow-y auto
+
+### En-tête formulaire
+Logo : PROFORMA Unbounded 700 20px var(--green) + AFRICA Unbounded 400 var(--gold)
+Sous-titre : "Générez votre facture en 2 minutes" Plus Jakarta Sans 14px var(--text-muted)
+
+---
+
+### STYLE GLOBAL DES INPUTS
+Label : Plus Jakarta Sans 13px 500 var(--text) margin-bottom 6px display block
+Input/Select/Textarea :
+- width 100%, padding 10px 14px
+- border 1px solid var(--border), border-radius 8px
+- Plus Jakarta Sans 14px var(--text)
+- background var(--card)
+- focus : border-color var(--green), outline none, box-shadow 0 0 0 3px rgba(26,107,60,0.1)
+- transition 0.15s
+Groupe : margin-bottom 20px
+
+---
+
+### SECTION 1 — Votre entreprise
+
+Titre section : "Votre entreprise" Unbounded 600 16px var(--text) + ligne verte 2px
+
+Upload logo :
+- Label cliquable : zone en pointillés var(--border), border-radius 8px
+- padding 20px, text-align center, cursor pointer
+- Icône UploadSimple 24px var(--text-muted)
+- Texte : "Cliquer pour ajouter votre logo" Plus Jakarta Sans 13px var(--text-muted)
+- input type="file" accept="image/*" hidden
+- onChange → FileReader → readAsDataURL → stocker en base64 dans donneesFacture.logoEntreprise
+- Si logo présent : afficher preview img 60px + bouton supprimer
+
+Grille 2 colonnes :
+- Nom de l'entreprise (required)
+- Email professionnel
+- Téléphone
+- Ville
+- Pays (select : Bénin / Côte d'Ivoire / Sénégal / Mali / Togo / Cameroun / Autre)
+
+---
+
+### SECTION 2 — Informations du document
+
+Titre section : "Document"
+
+Grille 2 colonnes :
+- Type de document (select) : Facture / Devis / Proforma
+  onChange → mettre à jour aussi le numéro via genererNumero()
+- Numéro (input text, pré-rempli via genererNumero, modifiable)
+- Date d'émission (input type="date", défaut = aujourd'hui)
+- Date d'échéance (input type="date")
+- Devise (select) : XOF / XAF / MAD / EUR / USD
+- Mode de paiement (select) : Mobile Money / Virement bancaire / Espèces / Chèque
+
+Si modePaiement === 'Mobile Money' :
+- Afficher input "Numéro Mobile Money" avec placeholder "+229 97 00 00 00"
+- Animation : height 0 → auto, opacity 0 → 1, transition 0.2s
+
+---
+
+### SECTION 3 — Client
+
+Titre section : "Client"
+
+Grille 2 colonnes :
+- Nom du client (required)
+- Entreprise du client (optionnel)
+- Email du client
+- Téléphone du client
+- Ville
+- Pays
+
+---
+
+### SECTION 4 — Services & Prestations
+
+Titre section : "Services"
+
+Liste des lignes (map sur donneesFacture.lignes) :
+Chaque LigneService dans une card :
+- background var(--card), border 1px solid var(--border)
+- border-radius 8px, padding 16px, margin-bottom 12px
+
+  Ligne 1 : Input description full width
+  placeholder "Ex: Création site web, Prestation graphique..."
+
+  Ligne 2 : grille 4 colonnes
+  - Quantité (input number, min 1, width auto)
+  - Prix unitaire (input number, min 0)
+  - TVA % (select : 0 / 10 / 18 / 20)
+  - Montant total (readonly, calculé, Unbounded 600 var(--green))
+    = quantite * prixUnitaire * (1 + tva/100)
+
+  Bouton supprimer ligne (icône Trash, couleur var(--red), visible si > 1 ligne)
+  position absolute top-12px right-12px ou à droite de la ligne 2
+
+Bouton "Ajouter un service" :
+- Pleine largeur, border 1px dashed var(--green), background var(--green-light)
+- couleur var(--green), Plus Jakarta Sans 14px 500
+- Icône Plus 16px, border-radius 8px, padding 12px
+- onClick → ajouter ligne vide { id: uuid, description:'', quantite:1, prixUnitaire:0, tva:18 }
+
+Récapitulatif totaux (fond var(--green-light), border-radius 8px, padding 16px) :
+- Sous-total : Plus Jakarta Sans 14px var(--text-muted) + montant
+- TVA : même style
+- Séparateur 1px var(--border)
+- TOTAL TTC : Unbounded 700 20px var(--green) + montant formaté
+
+---
+
+### SECTION 5 — Note (optionnel)
+
+Textarea "Note pour le client"
+- placeholder "Conditions de paiement, remerciements, informations complémentaires..."
+- rows 3
+
+---
+
+### BOUTON GÉNÉRATION PDF
+
+Bouton pleine largeur, fixé en bas du formulaire (sticky bottom-0) :
+- background var(--green), couleur blanc
+- Unbounded 700 16px, padding 16px
+- border-radius 0 (pleine largeur)
+- Icône FilePdf 20px
+- Texte : "Télécharger la facture PDF"
+- box-shadow 0 -4px 16px rgba(0,0,0,0.1)
+
+onClick → appeler la fonction de génération PDF (voir FacturePDF.tsx)
+Désactivé si nomEntreprise ou nomClient vide (opacity 0.5, cursor not-allowed)
+
+---
+
+## 👁️ APERÇU LIVE — src/components/Apercu.tsx
+
+'use client'
+Simulation visuelle du document final, mise à jour en temps réel.
+
+Wrapper :
+- background #E8E4DC, padding 24px, height 100vh, overflow-y auto
+- display flex flex-direction column align-items center
+
+Label haut : "Aperçu en temps réel" Plus Jakarta Sans 12px var(--text-muted) uppercase letter-spacing 0.1em margin-bottom 16px
+
+Document simulé (fond blanc, shadow var(--shadow), border-radius 4px, width 100%, max-width 560px) :
+padding 40px
+
+EN-TÊTE DU DOCUMENT :
+- Flex justify-between align-start
+
+  Gauche :
+  - Si logoEntreprise : img src={logoEntreprise} height 48px object-fit contain
+  - Sinon : carré 48px fond var(--green) avec initiales Unbounded 18px blanc
+  - Nom entreprise : Unbounded 700 16px var(--text) margin-top 8px
+  - Ville, Pays : Plus Jakarta Sans 12px var(--text-muted)
+  - Email, Tel : Plus Jakarta Sans 12px var(--text-muted)
+
+  Droite :
+  - typeDocument : Unbounded 700 28px var(--green) text-align right
+  - Numéro : Plus Jakarta Sans 13px var(--text-muted)
+  - Date émission : Plus Jakarta Sans 12px var(--text-muted)
+  - Date échéance : Plus Jakarta Sans 12px var(--text-muted)
+
+LIGNE SÉPARATRICE : 2px var(--green) opacity 0.2 margin 24px 0
+
+BLOC CLIENT :
+- Label "FACTURÉ À" Plus Jakarta Sans 10px uppercase letter-spacing 0.15em var(--text-muted)
+- Nom client : Unbounded 600 15px var(--text) margin-top 6px
+- Entreprise client : Plus Jakarta Sans 13px var(--text-muted)
+- Ville, Pays : Plus Jakarta Sans 12px var(--text-muted)
+
+TABLEAU SERVICES (margin-top 24px) :
+En-têtes : Description / Qté / P.U. / TVA / Total
+- Plus Jakarta Sans 11px uppercase letter-spacing 0.1em var(--text-muted)
+- border-bottom 1px solid var(--border) padding-bottom 8px
+
+Chaque ligne :
+- padding 10px 0, border-bottom 1px solid #F0EDE6
+- Description : Plus Jakarta Sans 14px var(--text)
+- Autres colonnes : Plus Jakarta Sans 13px var(--text-muted) text-align right
+- Total ligne : Unbounded 600 14px var(--text) text-align right
+
+Si aucun service saisi : message italique centré "Vos services apparaîtront ici..." var(--text-muted)
+
+TOTAUX (text-align right margin-top 20px) :
+- Sous-total : Plus Jakarta Sans 13px var(--text-muted)
+- TVA : même
+- Séparateur 1px
+- TOTAL TTC : Unbounded 700 22px var(--green)
+- Devise affichée à côté
+
+PIED DE DOCUMENT :
+- Séparateur 2px var(--green) opacity 0.15 margin-top 32px
+- Flex justify-between
+  Gauche : mode paiement (icône + texte) Plus Jakarta Sans 12px var(--text-muted)
+  Si mobile money : numéro affiché
+  Droite : note client en italique Lora 13px var(--text-muted) max-width 220px
+
+BARRE DÉCORATIVE BAS :
+- height 4px, background linear-gradient(90deg, var(--green), var(--gold))
+- border-radius 0 0 4px 4px
+
+---
+
+## 📄 GÉNÉRATION PDF — src/components/FacturePDF.tsx
+
+Utiliser @react-pdf/renderer
+
+Créer le composant PDF avec StyleSheet.create et les composants Document, Page, View, Text, Image de @react-pdf/renderer
+
+### Styles PDF
+const styles = StyleSheet.create({
+  page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#FFFFFF' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
+  logo: { width: 60, height: 60, objectFit: 'contain' },
+  logoInitiales: { width: 60, height: 60, backgroundColor: '#1A6B3C', alignItems: 'center', justifyContent: 'center' },
+  logoInitialesText: { color: '#FFFFFF', fontSize: 20, fontFamily: 'Helvetica-Bold' },
+  nomEntreprise: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: '#0D0D0D', marginTop: 6 },
+  texteGris: { fontSize: 10, color: '#6B6B6B', marginTop: 2 },
+  typeDocument: { fontSize: 28, fontFamily: 'Helvetica-Bold', color: '#1A6B3C', textAlign: 'right' },
+  numero: { fontSize: 11, color: '#6B6B6B', textAlign: 'right', marginTop: 4 },
+  separateur: { height: 1, backgroundColor: '#E2DDD6', marginVertical: 20 },
+  separateurVert: { height: 2, backgroundColor: '#1A6B3C', opacity: 0.2, marginVertical: 20 },
+  labelSection: { fontSize: 9, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: 1.5 },
+  nomClient: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: '#0D0D0D', marginTop: 6 },
+  tableHeader: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#E2DDD6', paddingBottom: 8, marginTop: 24 },
+  tableHeaderText: { fontSize: 9, color: '#6B6B6B', textTransform: 'uppercase' },
+  tableRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F0EDE6' },
+  cellDescription: { flex: 3, fontSize: 12, color: '#0D0D0D' },
+  cellRight: { flex: 1, fontSize: 11, color: '#6B6B6B', textAlign: 'right' },
+  cellTotal: { flex: 1, fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#0D0D0D', textAlign: 'right' },
+  totauxContainer: { alignItems: 'flex-end', marginTop: 20 },
+  totalLabel: { fontSize: 11, color: '#6B6B6B', marginBottom: 4 },
+  totalTTC: { fontSize: 22, fontFamily: 'Helvetica-Bold', color: '#1A6B3C', marginTop: 8 },
+  barreBas: { height: 4, backgroundColor: '#1A6B3C', marginTop: 32, borderRadius: 2 },
+  note: { fontSize: 11, color: '#6B6B6B', fontStyle: 'italic', marginTop: 16 },
+  pied: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24 },
+  piedTexte: { fontSize: 10, color: '#6B6B6B' },
+})
+
+### Composant FacturePDFDocument (exporté)
+Props : donneesFacture: DonneesFacture
+
+Reprend exactement la structure de l'aperçu visuel :
+- En-tête (logo ou initiales + infos entreprise / type + numéro + dates)
+- Séparateur vert
+- Bloc client
+- Tableau services (colonnes : Description / Qté / P.U. / TVA% / Total HT)
+- Totaux (Sous-total / TVA / Total TTC)
+- Pied (mode paiement + numéro mobile money si applicable)
+- Note client si présente
+- Barre décorative verte/or en bas
+
+### Fonction generatePDF (exportée)
+import { pdf } from '@react-pdf/renderer'
+import { saveAs } from 'file-saver'
+// installer : npm install file-saver @types/file-saver
+
+export async function generatePDF(donnees: DonneesFacture) {
+  const blob = await pdf(<FacturePDFDocument donneesFacture={donnees} />).toBlob()
+  const nomFichier = `${donnees.numeroFacture}-${donnees.nomClient.replace(/\s+/g, '-')}.pdf`
+  saveAs(blob, nomFichier)
+}
+
+Le bouton "Télécharger" dans Formulaire.tsx appelle generatePDF(donneesFacture)
+
+---
+
+## ✅ RÈGLES STRICTES
+
+- npm run dev sans erreur TypeScript
+- Zéro backend, zéro auth, zéro base de données
+- Un seul fichier page.tsx — pas de routing
+- Le PDF généré doit être identique visuellement à l'aperçu
+- Le logo uploadé (base64) doit apparaître dans le PDF
+- Responsive : mobile empilé (formulaire → aperçu)
+- CSS variables exclusivement
+- Phosphor Icons exclusivement
+- Le bouton PDF est désactivé tant que nomEntreprise et nomClient sont vides
+- Zéro emoji dans l'UI
