@@ -24,4 +24,8 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
+## Artifacts
+
+- **proforma-africa** (`/`) — ProformaAfrica: quote and invoice generator for francophone African freelancers and SMEs. React + Vite + wouter, frontend-only with mock data. Phosphor icons, Unbounded + Plus Jakarta Sans typography, custom green/gold design system via raw CSS variables in `src/index.css`.
+
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

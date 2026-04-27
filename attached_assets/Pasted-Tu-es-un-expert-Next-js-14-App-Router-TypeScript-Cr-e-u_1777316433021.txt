@@ -1,0 +1,584 @@
+Tu es un expert Next.js 14 App Router TypeScript.
+Crée une application web complète appelée ProformaAfrica —
+générateur de devis et factures pro pour freelances et PME d'Afrique francophone.
+
+---
+
+## 🎨 IDENTITÉ VISUELLE
+
+### Philosophie design
+Propre, moderne, professionnel — inspiré des meilleures fintech africaines.
+Pas de dark mode. Interface claire, aérée, avec des accents verts et or.
+Typographie forte, espaces généreux, zéro template générique.
+
+### Palette CSS variables (globals.css)
+:root {
+  --bg: #F7F5F0;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F0EDE6;
+  --green: #1A6B3C;
+  --green-light: #E8F5EE;
+  --green-dark: #0F4526;
+  --gold: #C8972A;
+  --gold-light: #FBF3E2;
+  --red-soft: #D94F3D;
+  --red-light: #FDECEA;
+  --text-primary: #0D0D0D;
+  --text-secondary: #4A4A4A;
+  --text-muted: #9A9A9A;
+  --border: #E2DDD6;
+  --border-focus: #1A6B3C;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+}
+
+### Typographie (next/font/google dans layout.tsx)
+- Unbounded (weight 400, 600, 700) — Logo, titres H1-H2, chiffres clés
+- Plus Jakarta Sans (weight 400, 500, 600) — Corps, labels, navigation
+- Lora italic (weight 400) — Citations, taglines
+
+### Icônes
+Phosphor Icons (@phosphor-icons/react) exclusivement, style Regular + Fill
+Icônes clés :
+- FileText → Devis/Factures
+- CurrencyDollar → Montants
+- PaperPlaneTilt → Envoi
+- CheckCircle → Payé
+- Clock → En attente
+- XCircle → Annulé
+- Buildings → Entreprise
+- User → Client
+- Plus → Créer
+- MagnifyingGlass → Recherche
+- Bell → Notifications
+- WhatsappLogo → Partage WhatsApp
+- FilePdf → Export PDF
+- ArrowRight, CaretDown, X → UI générale
+
+---
+
+## 🏗️ STRUCTURE DU PROJET
+
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx                     # Landing page publique
+│   ├── globals.css
+│   ├── dashboard/
+│   │   └── page.tsx                 # Dashboard principal
+│   ├── devis/
+│   │   ├── page.tsx                 # Liste des devis
+│   │   └── nouveau/
+│   │       └── page.tsx             # Créer un devis
+│   ├── factures/
+│   │   ├── page.tsx                 # Liste des factures
+│   │   └── nouvelle/
+│   │       └── page.tsx             # Créer une facture
+│   ├── clients/
+│   │   └── page.tsx                 # Gestion clients
+│   └── parametres/
+│       └── page.tsx                 # Profil entreprise
+├── components/
+│   ├── NavBar.tsx                   # Nav landing
+│   ├── SideBar.tsx                  # Sidebar app
+│   ├── AppLayout.tsx                # Layout avec sidebar
+│   ├── StatCard.tsx                 # Carte statistique dashboard
+│   ├── DocumentCard.tsx             # Card devis/facture
+│   ├── ClientCard.tsx               # Card client
+│   ├── DocumentForm.tsx             # Formulaire devis/facture
+│   ├── LigneItem.tsx                # Ligne produit/service
+│   ├── StatusBadge.tsx              # Badge statut
+│   └── PDFPreview.tsx               # Aperçu PDF simulé
+├── data/
+│   ├── types.ts
+│   └── mock.ts                      # Données mockées
+└── lib/
+    └── utils.ts                     # Formatage montants, dates
+
+---
+
+## 📊 TYPES — src/data/types.ts
+
+export type Devise = 'XOF' | 'XAF' | 'GNF' | 'MAD' | 'EUR' | 'USD'
+export type StatutDocument = 'brouillon' | 'envoye' | 'accepte' | 'paye' | 'annule' | 'en_retard'
+export type TypeDocument = 'devis' | 'facture' | 'proforma'
+export type ModePaiement = 'mobile_money' | 'virement' | 'especes' | 'cheque'
+
+export interface Client {
+  id: string
+  nom: string
+  entreprise?: string
+  email: string
+  telephone: string
+  adresse: string
+  ville: string
+  pays: string
+  devise: Devise
+  totalFacture: number
+  nombreDocuments: number
+}
+
+export interface LigneDocument {
+  id: string
+  description: string
+  quantite: number
+  prixUnitaire: number
+  tva: number
+}
+
+export interface Document {
+  id: string
+  numero: string
+  type: TypeDocument
+  statut: StatutDocument
+  clientId: string
+  dateCreation: string
+  dateEcheance: string
+  lignes: LigneDocument[]
+  devise: Devise
+  modePaiement: ModePaiement
+  noteClient?: string
+  noteInterne?: string
+  sousTotal: number
+  totalTva: number
+  total: number
+  relanceEnvoyee: boolean
+}
+
+export interface Entreprise {
+  nom: string
+  email: string
+  telephone: string
+  adresse: string
+  ville: string
+  pays: string
+  siret?: string
+  rccm?: string
+  logoInitiales: string
+}
+
+---
+
+## 📦 DONNÉES MOCKÉES — src/data/mock.ts
+
+import type { Client, Document, Entreprise } from './types'
+
+export const entreprise: Entreprise = {
+  nom: 'Digital Innovation',
+  email: 'contact@digitalinnovation.bj',
+  telephone: '+229 97 00 00 00',
+  adresse: 'Rue des Cocotiers, Cotonou',
+  ville: 'Cotonou',
+  pays: 'Bénin',
+  rccm: 'RB/COT/24/B/00001',
+  logoInitiales: 'DI',
+}
+
+export const clients: Client[] = [
+  { id:'1', nom:'Adjoua Koné', entreprise:'Koné & Associés', email:'adjoua@kone.ci', telephone:'+225 07 00 00 01', adresse:'Plateau', ville:'Abidjan', pays:'Côte d\'Ivoire', devise:'XOF', totalFacture:850000, nombreDocuments:4 },
+  { id:'2', nom:'Mamadou Diallo', entreprise:'Diallo Consulting', email:'m.diallo@diallo.sn', telephone:'+221 77 000 00 02', adresse:'Plateau', ville:'Dakar', pays:'Sénégal', devise:'XOF', totalFacture:520000, nombreDocuments:3 },
+  { id:'3', nom:'Cécile Mensah', entreprise:'Mensah Design', email:'cecile@mensahdesign.bj', telephone:'+229 96 00 00 03', adresse:'Cadjehoun', ville:'Cotonou', pays:'Bénin', devise:'XOF', totalFacture:340000, nombreDocuments:2 },
+  { id:'4', nom:'Ibrahim Touré', entreprise:'ToureTech', email:'ibrahim@touretech.ml', telephone:'+223 70 00 00 04', adresse:'ACI 2000', ville:'Bamako', pays:'Mali', devise:'XOF', totalFacture:175000, nombreDocuments:1 },
+  { id:'5', nom:'Fatou Ndiaye', email:'fatou.ndiaye@gmail.com', telephone:'+221 76 000 00 05', adresse:'Médina', ville:'Dakar', pays:'Sénégal', devise:'XOF', totalFacture:95000, nombreDocuments:2 },
+  { id:'6', nom:'Koffi Asante', entreprise:'Asante Créatif', email:'koffi@asante.gh', telephone:'+233 24 000 006', adresse:'Osu', ville:'Accra', pays:'Ghana', devise:'USD', totalFacture:1200, nombreDocuments:3 },
+]
+
+export const documents: Document[] = [
+  { id:'1', numero:'PRO-2024-001', type:'proforma', statut:'paye', clientId:'1', dateCreation:'2024-01-15', dateEcheance:'2024-02-15', devise:'XOF', modePaiement:'mobile_money', relanceEnvoyee:false, sousTotal:300000, totalTva:54000, total:354000, lignes:[{ id:'1', description:'Création site web vitrine', quantite:1, prixUnitaire:300000, tva:18 }] },
+  { id:'2', numero:'DEV-2024-002', type:'devis', statut:'envoye', clientId:'2', dateCreation:'2024-02-01', dateEcheance:'2024-03-01', devise:'XOF', modePaiement:'virement', relanceEnvoyee:true, sousTotal:200000, totalTva:36000, total:236000, lignes:[{ id:'1', description:'Stratégie digitale Q1', quantite:1, prixUnitaire:150000, tva:18 },{ id:'2', description:'Formation équipe (2 jours)', quantite:2, prixUnitaire:25000, tva:18 }] },
+  { id:'3', numero:'FAC-2024-003', type:'facture', statut:'en_retard', clientId:'3', dateCreation:'2024-01-20', dateEcheance:'2024-02-05', devise:'XOF', modePaiement:'mobile_money', relanceEnvoyee:true, sousTotal:180000, totalTva:32400, total:212400, lignes:[{ id:'1', description:'Identité visuelle complète', quantite:1, prixUnitaire:180000, tva:18 }] },
+  { id:'4', numero:'DEV-2024-004', type:'devis', statut:'brouillon', clientId:'4', dateCreation:'2024-02-10', dateEcheance:'2024-03-10', devise:'XOF', modePaiement:'especes', relanceEnvoyee:false, sousTotal:175000, totalTva:31500, total:206500, lignes:[{ id:'1', description:'Application mobile MVP', quantite:1, prixUnitaire:175000, tva:18 }] },
+  { id:'5', numero:'PRO-2024-005', type:'proforma', statut:'accepte', clientId:'1', dateCreation:'2024-02-15', dateEcheance:'2024-03-15', devise:'XOF', modePaiement:'virement', relanceEnvoyee:false, sousTotal:250000, totalTva:45000, total:295000, lignes:[{ id:'1', description:'Refonte plateforme e-commerce', quantite:1, prixUnitaire:250000, tva:18 }] },
+  { id:'6', numero:'FAC-2024-006', type:'facture', statut:'paye', clientId:'5', dateCreation:'2024-01-05', dateEcheance:'2024-01-20', devise:'XOF', modePaiement:'mobile_money', relanceEnvoyee:false, sousTotal:95000, totalTva:17100, total:112100, lignes:[{ id:'1', description:'Pack réseaux sociaux (1 mois)', quantite:1, prixUnitaire:95000, tva:18 }] },
+]
+
+---
+
+## 🔧 UTILITAIRES — src/lib/utils.ts
+
+export function formatMontant(montant: number, devise: string): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: devise === 'XOF' || devise === 'XAF' || devise === 'GNF' ? 'XOF' : devise,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(montant)
+}
+
+export function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'long', year: 'numeric'
+  })
+}
+
+export function genererNumero(type: string): string {
+  const prefixes = { devis: 'DEV', facture: 'FAC', proforma: 'PRO' }
+  const prefix = prefixes[type as keyof typeof prefixes] || 'DOC'
+  const annee = new Date().getFullYear()
+  const num = Math.floor(Math.random() * 900) + 100
+  return `${prefix}-${annee}-${num}`
+}
+
+export function calculerTotaux(lignes: { quantite: number; prixUnitaire: number; tva: number }[]) {
+  const sousTotal = lignes.reduce((sum, l) => sum + l.quantite * l.prixUnitaire, 0)
+  const totalTva = lignes.reduce((sum, l) => sum + l.quantite * l.prixUnitaire * l.tva / 100, 0)
+  return { sousTotal, totalTva, total: sousTotal + totalTva }
+}
+
+---
+
+## 📄 LANDING PAGE — src/app/page.tsx
+
+Page statique de présentation. Pas de 'use client'.
+
+### NavBar landing (NavBar.tsx)
+- background blanc, border-bottom var(--border)
+- padding 0 clamp(24px, 6vw, 80px)
+- height 64px, flex justify-between align-center, sticky top-0 z-50
+
+- Logo gauche : PROFORMA en Unbounded 700 var(--green) + AFRICA en Unbounded 400 var(--gold)
+- Liens centre (desktop) : Fonctionnalités · Tarifs · À propos — Plus Jakarta Sans 14px var(--text-secondary) hover var(--green)
+- Droite : bouton "Commencer gratuitement" fond var(--green) couleur blanc Unbounded 13px padding 10px 24px border-radius 6px hover var(--green-dark)
+
+### Hero landing
+- padding clamp(80px, 14vh, 140px) clamp(24px, 6vw, 80px)
+- background var(--bg)
+- text-align center, max-width 800px, margin auto
+
+Badge haut :
+- "✦ Fait pour l'Afrique francophone"
+- Plus Jakarta Sans 12px, fond var(--green-light), couleur var(--green)
+- padding 6px 16px, border-radius 100px, display inline-block, margin-bottom 24px
+
+Titre :
+- Unbounded 700, clamp(36px, 6vw, 72px), var(--text-primary), line-height 1.1
+- Ligne 1 : "Vos devis et factures,"
+- Ligne 2 : en couleur var(--green) : "en 3 minutes."
+
+Sous-titre :
+- Plus Jakarta Sans 18px var(--text-secondary) margin-top 20px max-width 560px margin-auto
+
+CTA row (flex center gap 16px margin-top 40px) :
+- Bouton primaire : "Créer ma première facture →" fond var(--green) couleur blanc Unbounded 14px padding 14px 32px border-radius 8px
+- Bouton secondaire : "Voir la démo" border var(--border) fond blanc couleur var(--text-primary) même taille hover background var(--bg-surface)
+
+Stats row (flex center gap 48px margin-top 60px) :
+3 stats en Unbounded 700 36px var(--green) avec label Plus Jakarta Sans 13px var(--text-muted) :
+- "3 min" / "Pour créer une facture"
+- "100%" / "Gratuit pour commencer"
+- "FCFA" / "Devise locale supportée"
+
+### Section Fonctionnalités (6 features)
+- padding 80px clamp(24px, 6vw, 80px)
+- background var(--bg-card)
+- Titre centré Unbounded 32px var(--text-primary) margin-bottom 48px
+
+Grid 3x2 (desktop) / 1 col (mobile) gap 24px :
+Chaque feature card :
+- padding 28px, border 1px solid var(--border), border-radius 12px
+- background var(--bg)
+- hover : border-color var(--green), box-shadow var(--shadow-md)
+- transition 0.2s
+
+Icône Phosphor en haut (32px, couleur var(--green))
+Titre : Unbounded 600 16px var(--text-primary) margin-top 12px margin-bottom 8px
+Description : Plus Jakarta Sans 14px var(--text-muted) line-height 1.6
+
+Features :
+1. FileText "Devis & Proformas" — "Créez des documents pro en quelques clics, adaptés aux standards africains."
+2. FilePdf "Export PDF instantané" — "Téléchargez ou partagez vos documents en PDF haute qualité."
+3. WhatsappLogo "Partage WhatsApp" — "Envoyez vos factures directement via WhatsApp en un clic."
+4. CurrencyDollar "Multi-devises" — "XOF, XAF, MAD, GNF, EUR, USD — choisissez la devise de votre client."
+5. Bell "Relances automatiques" — "Rappels automatiques pour les factures impayées après échéance."
+6. Buildings "Gestion clients" — "Carnet de clients centralisé avec historique complet."
+
+### Section Tarifs (3 plans)
+- padding 80px clamp(24px, 6vw, 80px)
+- background var(--bg)
+- Titre centré Unbounded 32px
+
+Grid 3 colonnes gap 24px :
+
+Plan Free :
+- border 1px solid var(--border), border-radius 12px, padding 32px
+- Prix : "0 FCFA" Unbounded 700 40px var(--text-primary)
+- Sous-titre : "/mois"
+- Liste 4 items : 3 documents/mois · Export PDF · Partage WhatsApp · 1 devise
+
+Plan Pro (highlighted) :
+- background var(--green), border-color var(--green)
+- Badge "Populaire" fond blanc couleur var(--green) Unbounded 11px
+- Prix : "2 500 FCFA" Unbounded 700 40px blanc
+- Liste 6 items en blanc
+
+Plan Business :
+- border var(--border), padding 32px, border-radius 12px
+- Prix : "7 500 FCFA"
+- Liste 8 items incluant relances auto + multi-utilisateurs
+
+### Footer landing
+- background var(--text-primary), couleur blanc
+- padding 48px clamp(24px, 6vw, 80px) 24px
+- Logo + tagline + liens + copyright
+
+---
+
+## 🖥️ APP LAYOUT — src/components/AppLayout.tsx + SideBar.tsx
+
+### SideBar.tsx
+- width 240px fixe desktop, couleur background var(--text-primary)
+- padding 24px 0
+- display flex flex-direction column
+
+Logo en haut :
+- padding 0 20px margin-bottom 32px
+- PROFORMA Unbounded 700 18px var(--green) + AFRICA Unbounded 400 var(--gold)
+
+Navigation items (liste) :
+- padding 0 12px, flex flex-direction column, gap 4px
+Chaque NavItem :
+- Link next/link
+- display flex align-items center gap 12px
+- padding 10px 16px, border-radius 8px
+- Plus Jakarta Sans 14px 500 couleur rgba(255,255,255,0.6)
+- Icône Phosphor 20px même couleur
+- Actif : background rgba(255,255,255,0.1) couleur blanc icône blanc
+- hover : background rgba(255,255,255,0.07)
+- transition 0.15s
+
+Items navigation :
+- Dashboard (icône SquaresFour) href="/dashboard"
+- Devis (icône FileText) href="/devis"
+- Factures (icône Receipt) href="/factures"
+- Clients (icône Users) href="/clients"
+- Paramètres (icône Gear) href="/parametres"
+
+Bas de sidebar (margin-top auto) :
+- Bloc entreprise :
+  padding 16px 20px, border-top 1px solid rgba(255,255,255,0.08)
+  Avatar initiales 36px fond var(--green) Unbounded 14px blanc
+  Nom entreprise Plus Jakarta Sans 13px blanc
+  Email Plus Jakarta Sans 11px rgba(255,255,255,0.4)
+
+### AppLayout.tsx
+- display flex, height 100vh
+- SideBar fixe gauche
+- Main : flex-1, overflow-y auto, background var(--bg)
+- Sur mobile : SideBar cachée (hamburger menu simplifié)
+
+---
+
+## 📊 DASHBOARD — src/app/dashboard/page.tsx
+
+'use client'
+
+Imports : documents, clients, formatMontant depuis utils
+
+### En-tête
+- padding 32px 40px 0
+- "Bonjour," Plus Jakarta Sans 16px var(--text-muted)
+- "Digital Innovation 👋" Unbounded 700 28px var(--text-primary)
+- Date du jour formatée à droite Plus Jakarta Sans 14px var(--text-muted)
+
+### Ligne de stats (4 StatCards)
+
+StatCard.tsx :
+- background var(--bg-card)
+- border 1px solid var(--border)
+- border-radius 12px, padding 24px
+- shadow var(--shadow-sm)
+
+  Haut : label Plus Jakarta Sans 13px var(--text-muted) uppercase letter-spacing 0.05em + icône Phosphor 18px var(--text-muted)
+  Milieu : chiffre Unbounded 700 32px var(--text-primary)
+  Bas : tendance "+ X% ce mois" Plus Jakarta Sans 12px var(--green)
+
+4 stats calculées depuis mock :
+1. Total facturé (somme documents payés) — icône CurrencyDollar
+2. En attente (somme documents envoyés) — icône Clock — couleur var(--gold)
+3. En retard (somme documents en_retard) — icône Warning — couleur var(--red-soft)
+4. Clients actifs (count clients) — icône Users — couleur var(--green)
+
+### Section "Documents récents"
+
+Titre flex justify-between :
+- "Documents récents" Unbounded 600 18px
+- Link "Voir tout →" Plus Jakarta Sans 14px var(--green) href="/factures"
+
+Liste des 5 derniers documents (DocumentCard en mode liste) :
+Chaque ligne :
+- background var(--bg-card), border 1px solid var(--border), border-radius 8px
+- padding 16px 20px, flex row align-center gap 16px
+- hover background var(--bg-surface) transition 0.15s
+
+  Icône type (FileText/Receipt/FilePdf) 20px var(--text-muted)
+  Infos : numéro Unbounded 14px var(--text-primary) + nom client Plus Jakarta Sans 13px var(--text-muted)
+  Date à droite Plus Jakarta Sans 13px var(--text-muted)
+  Montant Unbounded 600 16px var(--text-primary)
+  StatusBadge
+
+### StatusBadge.tsx
+Badges colorés selon statut :
+- brouillon : fond #F5F5F5 couleur var(--text-muted) "Brouillon"
+- envoye : fond var(--gold-light) couleur var(--gold) "Envoyé"
+- accepte : fond var(--green-light) couleur var(--green) "Accepté"
+- paye : fond var(--green-light) couleur var(--green-dark) "Payé ✓"
+- annule : fond var(--red-light) couleur var(--red-soft) "Annulé"
+- en_retard : fond var(--red-light) couleur var(--red-soft) "En retard"
+Style : Plus Jakarta Sans 11px 600, padding 3px 10px, border-radius 100px
+
+### Section "Accès rapides"
+
+3 boutons actions rapides :
+- "Nouveau devis" fond var(--green) couleur blanc Unbounded 14px
+- "Nouvelle facture" border var(--green) couleur var(--green) fond blanc
+- "Ajouter un client" border var(--border) couleur var(--text-primary)
+Icônes Phosphor correspondantes. border-radius 8px padding 12px 20px
+
+---
+
+## 📄 PAGE DEVIS — src/app/devis/page.tsx
+
+'use client'
+
+### En-tête
+- "Devis" Unbounded 700 28px + bouton "Nouveau devis +" fond var(--green) href="/devis/nouveau"
+
+### Barre de recherche + filtres
+- Input recherche (icône MagnifyingGlass) : border var(--border) border-radius 8px padding 10px 16px Plus Jakarta Sans 14px
+- Filtres statut : boutons pill (tous / brouillon / envoye / accepte / paye)
+
+### Liste devis
+Filtrer documents type='devis'
+Chaque DocumentCard mode liste (même style dashboard mais avec plus d'infos) :
+- Ajouter : nom client, date échéance, mode paiement icon
+
+---
+
+## 📄 PAGE FACTURES — src/app/factures/page.tsx
+
+Identique à page Devis mais filtrer type='facture' | type='proforma'
+Ajouter colonne "Relance" : si relanceEnvoyee → badge "Relance envoyée" var(--gold)
+
+---
+
+## 📄 PAGE NOUVEAU DEVIS — src/app/devis/nouveau/page.tsx
+
+'use client' avec useState pour gérer le formulaire
+
+### Layout 2 colonnes desktop :
+- Col gauche (60%) : formulaire
+- Col droite (40%) : aperçu PDF en temps réel
+
+### Formulaire (DocumentForm.tsx)
+
+Section 1 — Informations
+- Select client (depuis liste clients mock) ou "Nouveau client"
+- Select type : Devis / Facture / Proforma
+- Input date émission + date échéance (type="date")
+- Select devise : XOF / XAF / GNF / MAD / EUR / USD
+- Select mode paiement : Mobile Money / Virement / Espèces / Chèque
+
+Section 2 — Lignes de services (LigneItem.tsx)
+useState lignes = [{ id, description, quantite, prixUnitaire, tva }]
+Bouton "Ajouter une ligne" (icône Plus)
+Chaque ligne :
+- Input description (flex-1)
+- Input quantité (width 80px)
+- Input prix unitaire (width 120px)
+- Select TVA : 0% / 18% / 20%
+- Montant calculé auto (readonly) : Unbounded 600 var(--text-primary)
+- Bouton supprimer ligne (icône X couleur var(--red-soft))
+
+Section 3 — Totaux (calculés auto depuis lignes)
+- Sous-total, TVA, Total TTC
+- Unbounded 700 pour le total, aligné droite
+
+Section 4 — Notes
+- Textarea "Note pour le client" (visible sur PDF)
+- Textarea "Note interne" (non visible sur PDF)
+
+Boutons action :
+- "Enregistrer brouillon" (border var(--border))
+- "Envoyer →" (fond var(--green) Unbounded)
+- Chaque bouton : onClick → alert simulant l'action (pas de vrai backend)
+
+### Aperçu PDF (PDFPreview.tsx)
+Simulation d'un document PDF stylisé :
+- fond blanc, padding 40px, border 1px solid var(--border)
+- border-radius 8px, shadow var(--shadow-md)
+- En-tête : logo initiales + nom entreprise + coordonnées
+- Titre document : "DEVIS N° DEV-2024-XXX" Unbounded 700 20px
+- Infos client et dates
+- Tableau lignes (description / qté / PU / TVA / Total)
+- Totaux bas droite
+- Barre verte en bas (accent branding)
+- Mise à jour en temps réel selon le formulaire
+
+---
+
+## 📄 PAGE CLIENTS — src/app/clients/page.tsx
+
+'use client'
+
+En-tête : "Clients" + bouton "Ajouter un client +"
+
+Grid clients (repeat(auto-fill, minmax(280px, 1fr)) gap 20px) :
+
+Chaque ClientCard :
+- background var(--bg-card), border var(--border), border-radius 12px, padding 24px
+- hover : border-color var(--green), shadow var(--shadow-md)
+
+Avatar initiales (48px, fond var(--green-light), couleur var(--green), Unbounded 18px)
+Nom : Unbounded 600 16px var(--text-primary)
+Entreprise (si existe) : Plus Jakarta Sans 13px var(--text-muted)
+Séparateur 1px var(--border) margin 16px 0
+
+Stats client (flex row justify-between) :
+- Colonne : label "Documents" Plus Jakarta Sans 11px muted + valeur Unbounded 600 16px
+- Colonne : label "Total facturé" + valeur Unbounded 600 16px var(--green)
+
+Actions bas :
+- Icône WhatsappLogo (href wa.me/tel) couleur #25D366
+- Icône EnvelopeSimple (mailto:) couleur var(--text-muted)
+- Lien "Voir détail →" Plus Jakarta Sans 12px var(--green) margin-left auto
+
+---
+
+## 📄 PAGE PARAMÈTRES — src/app/parametres/page.tsx
+
+Formulaire édition profil entreprise :
+- Nom entreprise, email, téléphone, adresse, ville, pays
+- RCCM / SIRET (champ optionnel)
+- Devise par défaut (select)
+- Taux TVA par défaut
+
+Tous les inputs :
+- border var(--border), border-radius 8px, padding 10px 16px
+- Plus Jakarta Sans 14px, focus border-color var(--green) outline none
+- Label Plus Jakarta Sans 13px var(--text-secondary) margin-bottom 6px
+
+Section Mobile Money :
+- Champs : Opérateur (MTN / Moov / Wave / Orange Money) + Numéro
+- Info : "Ce numéro apparaîtra sur vos documents pour faciliter le paiement."
+
+Bouton "Sauvegarder" fond var(--green) Unbounded 14px
+(onClick → alert "Profil mis à jour !")
+
+---
+
+## ✅ RÈGLES STRICTES
+
+- Next.js 14 App Router, TypeScript strict, zéro erreur
+- npm run dev fonctionnel dès le premier lancement
+- Zéro backend, zéro base de données — tout en mock/useState
+- Zéro librairie CSS externe sauf Phosphor Icons
+- CSS variables exclusivement, jamais de couleurs hardcodées
+- Tous les composants interactifs en 'use client'
+- Pages statiques sans hooks → Server Components (pas de 'use client')
+- AppLayout avec SideBar sur toutes les pages /dashboard, /devis, /factures, /clients, /parametres
+- Landing page (/) avec NavBar simple sans SideBar
+- Responsive : sidebar cachée mobile (display none sous 768px, hamburger optionnel)
+- Tous les montants formatés via formatMontant() de utils.ts
+- Toutes les dates formatées via formatDate() de utils.ts
+- Aucun emoji dans l'UI sauf le 👋 dans le dashboard greeting
