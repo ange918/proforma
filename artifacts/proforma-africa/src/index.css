@@ -416,6 +416,21 @@ textarea {
 
   .pa-formulaire-root {
     -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  /* Prevent any element from causing horizontal scroll */
+  .pa-form-content * {
+    max-width: 100%;
+  }
+
+  /* Ligne de service : passe de 5 colonnes à 2×2 + total pleine largeur */
+  .pa-ligne-nums {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .pa-ligne-nums > div:last-child {
+    grid-column: 1 / -1;
   }
 
   /* Thinner scrollbar on mobile */

@@ -803,6 +803,7 @@ export default function Formulaire({
                   </div>
 
                   <div
+                    className="pa-ligne-nums"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "80px 1fr 90px 90px 1fr",
