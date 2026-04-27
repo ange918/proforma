@@ -58,425 +58,556 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
         style={{
           background: "#FFFFFF",
           boxShadow: "var(--shadow)",
-          borderRadius: 4,
+          borderRadius: 6,
           width: "100%",
-          maxWidth: 560,
-          padding: 40,
+          maxWidth: 580,
           color: "var(--text)",
+          overflow: "hidden",
+          position: "relative",
         }}
       >
-        {/* HEADER */}
+        {/* TOP GRADIENT BAR */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: 20,
+            height: 8,
+            background:
+              "linear-gradient(90deg, var(--green) 0%, var(--green) 60%, var(--gold) 100%)",
+          }}
+        />
+
+        {/* CORNER ORNAMENT — gold dots */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 28,
+            right: 28,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 4px)",
+            gap: 4,
+            opacity: 0.2,
           }}
         >
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {donnees.logoEntreprise ? (
-              <img
-                src={donnees.logoEntreprise}
-                alt="logo"
-                style={{ height: 48, objectFit: "contain" }}
-              />
-            ) : (
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: 4,
+                height: 4,
+                borderRadius: "50%",
+                background: "var(--gold)",
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={{ padding: "36px 40px 40px" }}>
+          {/* HEADER */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: 20,
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {donnees.logoEntreprise ? (
+                <img
+                  src={donnees.logoEntreprise}
+                  alt="logo"
+                  style={{ height: 56, objectFit: "contain" }}
+                />
+              ) : (
+                <div
+                  className="font-unbounded"
+                  style={{
+                    width: 56,
+                    height: 56,
+                    background: "var(--green)",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    fontWeight: 700,
+                    borderRadius: 6,
+                    boxShadow: "0 4px 12px rgba(26, 107, 60, 0.25)",
+                  }}
+                >
+                  {getInitiales(donnees.nomEntreprise || "")}
+                </div>
+              )}
               <div
                 className="font-unbounded"
                 style={{
-                  width: 48,
-                  height: 48,
-                  background: "var(--green)",
+                  fontWeight: 700,
+                  fontSize: 17,
+                  marginTop: 12,
+                  color: "var(--text)",
+                  wordBreak: "break-word",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {donnees.nomEntreprise || "Votre entreprise"}
+              </div>
+              <div style={{ marginTop: 8, lineHeight: 1.6 }}>
+                {(donnees.villeEntreprise || donnees.paysEntreprise) && (
+                  <div
+                    style={{ fontSize: 12, color: "var(--text-muted)" }}
+                  >
+                    {[donnees.villeEntreprise, donnees.paysEntreprise]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </div>
+                )}
+                {donnees.emailEntreprise && (
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    {donnees.emailEntreprise}
+                  </div>
+                )}
+                {donnees.telephoneEntreprise && (
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    {donnees.telephoneEntreprise}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* RIGHT — TYPE & METADATA */}
+            <div
+              style={{
+                textAlign: "right",
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              <div
+                className="font-unbounded"
+                style={{
+                  fontWeight: 700,
+                  fontSize: 32,
+                  color: "var(--green)",
+                  lineHeight: 1,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {donnees.typeDocument.toUpperCase()}
+              </div>
+              <div
+                style={{
+                  display: "inline-block",
+                  marginTop: 10,
+                  padding: "5px 12px",
+                  background: "var(--green-light)",
+                  color: "var(--green)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  borderRadius: 999,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                N° {donnees.numeroFacture}
+              </div>
+              <div style={{ marginTop: 10, lineHeight: 1.6 }}>
+                {donnees.dateEmission && (
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    Émis le {formatDateFr(donnees.dateEmission)}
+                  </div>
+                )}
+                {donnees.dateEcheance && (
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    Échéance: {formatDateFr(donnees.dateEcheance)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* CLIENT CARD */}
+          <div
+            style={{
+              marginTop: 28,
+              background: "var(--bg)",
+              borderLeft: "3px solid var(--green)",
+              padding: "16px 20px",
+              borderRadius: "0 6px 6px 0",
+            }}
+          >
+            <div
+              className="font-jakarta"
+              style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+                color: "var(--text-muted)",
+                fontWeight: 600,
+              }}
+            >
+              Facturé à
+            </div>
+            <div
+              className="font-unbounded"
+              style={{
+                fontWeight: 600,
+                fontSize: 16,
+                marginTop: 6,
+                color: "var(--text)",
+              }}
+            >
+              {donnees.nomClient || "Nom du client"}
+            </div>
+            <div style={{ marginTop: 4, lineHeight: 1.6 }}>
+              {donnees.entrepriseClient && (
+                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  {donnees.entrepriseClient}
+                </div>
+              )}
+              {(donnees.villeClient || donnees.paysClient) && (
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {[donnees.villeClient, donnees.paysClient]
+                    .filter(Boolean)
+                    .join(", ")}
+                </div>
+              )}
+              {donnees.emailClient && (
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {donnees.emailClient}
+                </div>
+              )}
+              {donnees.telephoneClient && (
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {donnees.telephoneClient}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* TABLEAU SERVICES */}
+          <div style={{ marginTop: 28 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
+                gap: 8,
+                background: "var(--green)",
+                color: "#fff",
+                padding: "10px 14px",
+                borderRadius: 6,
+              }}
+            >
+              {["Description", "Qté", "P.U.", "TVA", "Total"].map((h, i) => (
+                <div
+                  key={h}
+                  className="font-jakarta"
+                  style={{
+                    fontSize: 10,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    fontWeight: 600,
+                    textAlign: i === 0 ? "left" : "right",
+                  }}
+                >
+                  {h}
+                </div>
+              ))}
+            </div>
+
+            {aDesLignes ? (
+              donnees.lignes.map((l, idx) => {
+                const totalLigne =
+                  l.quantite * l.prixUnitaire * (1 + l.tva / 100);
+                return (
+                  <div
+                    key={l.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
+                      gap: 8,
+                      padding: "12px 14px",
+                      background: idx % 2 === 1 ? "#FAF9F5" : "transparent",
+                      borderBottom: "1px solid #F0EDE6",
+                      alignItems: "start",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: "var(--text)",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {l.description || (
+                        <span
+                          style={{
+                            color: "var(--text-muted)",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          Description du service
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        textAlign: "right",
+                      }}
+                    >
+                      {l.quantite}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        textAlign: "right",
+                      }}
+                    >
+                      {formatMontant(l.prixUnitaire, donnees.devise)}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        textAlign: "right",
+                      }}
+                    >
+                      {l.tva}%
+                    </div>
+                    <div
+                      className="font-unbounded"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "var(--text)",
+                        textAlign: "right",
+                      }}
+                    >
+                      {formatMontant(totalLigne, donnees.devise)}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div
+                style={{
+                  padding: "24px 0",
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                  fontStyle: "italic",
+                  fontSize: 13,
+                }}
+              >
+                Vos services apparaîtront ici...
+              </div>
+            )}
+          </div>
+
+          {/* TOTAUX */}
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <div style={{ minWidth: 280 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 13,
+                  color: "var(--text-muted)",
+                  padding: "6px 16px",
+                }}
+              >
+                <span>Sous-total HT</span>
+                <span>{formatMontant(sousTotal, donnees.devise)}</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 13,
+                  color: "var(--text-muted)",
+                  padding: "6px 16px",
+                }}
+              >
+                <span>TVA</span>
+                <span>{formatMontant(totalTva, donnees.devise)}</span>
+              </div>
+              <div
+                style={{
+                  marginTop: 8,
+                  background:
+                    "linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%)",
                   color: "#fff",
+                  padding: "14px 16px",
+                  borderRadius: 6,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  boxShadow: "0 4px 14px rgba(26, 107, 60, 0.25)",
+                }}
+              >
+                <span
+                  className="font-jakarta"
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    opacity: 0.9,
+                  }}
+                >
+                  Total TTC
+                </span>
+                <span
+                  className="font-unbounded"
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 22,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {formatMontant(total, donnees.devise)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* PIED */}
+          <div
+            style={{
+              marginTop: 36,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "stretch",
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                background: "var(--bg)",
+                padding: "12px 16px",
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  background: "var(--green-light)",
+                  color: "var(--green)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 18,
-                  fontWeight: 700,
-                  borderRadius: 4,
+                  flexShrink: 0,
                 }}
               >
-                {getInitiales(donnees.nomEntreprise || "")}
+                <PaiementIcon mode={donnees.modePaiement} />
               </div>
-            )}
-            <div
-              className="font-unbounded"
-              style={{
-                fontWeight: 700,
-                fontSize: 16,
-                marginTop: 8,
-                color: "var(--text)",
-                wordBreak: "break-word",
-              }}
-            >
-              {donnees.nomEntreprise || "Votre entreprise"}
-            </div>
-            {(donnees.villeEntreprise || donnees.paysEntreprise) && (
-              <div
-                style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-              >
-                {[donnees.villeEntreprise, donnees.paysEntreprise]
-                  .filter(Boolean)
-                  .join(", ")}
-              </div>
-            )}
-            {donnees.emailEntreprise && (
-              <div
-                style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-              >
-                {donnees.emailEntreprise}
-              </div>
-            )}
-            {donnees.telephoneEntreprise && (
-              <div
-                style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-              >
-                {donnees.telephoneEntreprise}
-              </div>
-            )}
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div
-              className="font-unbounded"
-              style={{
-                fontWeight: 700,
-                fontSize: 28,
-                color: "var(--green)",
-                lineHeight: 1,
-              }}
-            >
-              {donnees.typeDocument.toUpperCase()}
-            </div>
-            <div
-              style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 6 }}
-            >
-              N° {donnees.numeroFacture}
-            </div>
-            {donnees.dateEmission && (
-              <div
-                style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-              >
-                Émis le {formatDateFr(donnees.dateEmission)}
-              </div>
-            )}
-            {donnees.dateEcheance && (
-              <div
-                style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-              >
-                Échéance: {formatDateFr(donnees.dateEcheance)}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* SEPARATEUR VERT */}
-        <div
-          style={{
-            height: 2,
-            background: "var(--green)",
-            opacity: 0.2,
-            margin: "24px 0",
-          }}
-        />
-
-        {/* CLIENT */}
-        <div>
-          <div
-            className="font-jakarta"
-            style={{
-              fontSize: 10,
-              textTransform: "uppercase",
-              letterSpacing: "0.15em",
-              color: "var(--text-muted)",
-            }}
-          >
-            Facturé à
-          </div>
-          <div
-            className="font-unbounded"
-            style={{
-              fontWeight: 600,
-              fontSize: 15,
-              marginTop: 6,
-              color: "var(--text)",
-            }}
-          >
-            {donnees.nomClient || "Nom du client"}
-          </div>
-          {donnees.entrepriseClient && (
-            <div
-              style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}
-            >
-              {donnees.entrepriseClient}
-            </div>
-          )}
-          {(donnees.villeClient || donnees.paysClient) && (
-            <div
-              style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-            >
-              {[donnees.villeClient, donnees.paysClient]
-                .filter(Boolean)
-                .join(", ")}
-            </div>
-          )}
-          {donnees.emailClient && (
-            <div
-              style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-            >
-              {donnees.emailClient}
-            </div>
-          )}
-          {donnees.telephoneClient && (
-            <div
-              style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
-            >
-              {donnees.telephoneClient}
-            </div>
-          )}
-        </div>
-
-        {/* TABLEAU SERVICES */}
-        <div style={{ marginTop: 24 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
-              gap: 8,
-              borderBottom: "1px solid var(--border)",
-              paddingBottom: 8,
-            }}
-          >
-            {["Description", "Qté", "P.U.", "TVA", "Total"].map((h, i) => (
-              <div
-                key={h}
-                style={{
-                  fontSize: 11,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--text-muted)",
-                  textAlign: i === 0 ? "left" : "right",
-                }}
-              >
-                {h}
-              </div>
-            ))}
-          </div>
-
-          {aDesLignes ? (
-            donnees.lignes.map((l) => {
-              const totalLigne =
-                l.quantite * l.prixUnitaire * (1 + l.tva / 100);
-              return (
+              <div>
                 <div
-                  key={l.id}
+                  className="font-jakarta"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "3fr 0.6fr 1fr 0.6fr 1fr",
-                    gap: 8,
-                    padding: "10px 0",
-                    borderBottom: "1px solid #F0EDE6",
-                    alignItems: "start",
+                    fontSize: 9,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    fontWeight: 600,
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: 14,
-                      color: "var(--text)",
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {l.description || (
-                      <span
-                        style={{ color: "var(--text-muted)", fontStyle: "italic" }}
-                      >
-                        Description du service
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--text-muted)",
-                      textAlign: "right",
-                    }}
-                  >
-                    {l.quantite}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--text-muted)",
-                      textAlign: "right",
-                    }}
-                  >
-                    {formatMontant(l.prixUnitaire, donnees.devise)}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--text-muted)",
-                      textAlign: "right",
-                    }}
-                  >
-                    {l.tva}%
-                  </div>
-                  <div
-                    className="font-unbounded"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "var(--text)",
-                      textAlign: "right",
-                    }}
-                  >
-                    {formatMontant(totalLigne, donnees.devise)}
-                  </div>
+                  Paiement
                 </div>
-              );
-            })
-          ) : (
-            <div
-              style={{
-                padding: "24px 0",
-                textAlign: "center",
-                color: "var(--text-muted)",
-                fontStyle: "italic",
-                fontSize: 13,
-              }}
-            >
-              Vos services apparaîtront ici...
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text)",
+                    fontWeight: 500,
+                    marginTop: 2,
+                  }}
+                >
+                  {donnees.modePaiement}
+                </div>
+                {donnees.modePaiement === "Mobile Money" &&
+                  donnees.numeroMobileMoney && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-muted)",
+                        marginTop: 2,
+                      }}
+                    >
+                      {donnees.numeroMobileMoney}
+                    </div>
+                  )}
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* TOTAUX */}
-        <div
-          style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}
-        >
-          <div style={{ minWidth: 240 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 13,
-                color: "var(--text-muted)",
-                padding: "4px 0",
-              }}
-            >
-              <span>Sous-total HT</span>
-              <span>{formatMontant(sousTotal, donnees.devise)}</span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 13,
-                color: "var(--text-muted)",
-                padding: "4px 0",
-              }}
-            >
-              <span>TVA</span>
-              <span>{formatMontant(totalTva, donnees.devise)}</span>
-            </div>
-            <div
-              style={{
-                height: 1,
-                background: "var(--border)",
-                margin: "8px 0",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <span
-                className="font-jakarta"
-                style={{ fontSize: 13, color: "var(--text)", fontWeight: 600 }}
-              >
-                Total TTC
-              </span>
-              <span
-                className="font-unbounded"
+            {donnees.noteClient && (
+              <div
                 style={{
-                  fontWeight: 700,
-                  fontSize: 22,
-                  color: "var(--green)",
+                  flex: 1,
+                  background: "var(--bg)",
+                  padding: "12px 16px",
+                  borderRadius: 6,
+                  borderLeft: "2px solid var(--gold)",
                 }}
               >
-                {formatMontant(total, donnees.devise)}
-              </span>
-            </div>
+                <div
+                  className="font-jakarta"
+                  style={{
+                    fontSize: 9,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    fontWeight: 600,
+                  }}
+                >
+                  Note
+                </div>
+                <div
+                  className="font-lora-italic"
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-muted)",
+                    marginTop: 4,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {donnees.noteClient}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* PIED */}
-        <div
-          style={{
-            height: 2,
-            background: "var(--green)",
-            opacity: 0.15,
-            marginTop: 32,
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: 20,
-            marginTop: 16,
-          }}
-        >
+          {/* MERCI */}
           <div
             style={{
-              fontSize: 12,
+              marginTop: 28,
+              textAlign: "center",
+              fontSize: 11,
               color: "var(--text-muted)",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
             }}
           >
-            <PaiementIcon mode={donnees.modePaiement} />
-            <div>
-              <div>{donnees.modePaiement}</div>
-              {donnees.modePaiement === "Mobile Money" &&
-                donnees.numeroMobileMoney && (
-                  <div style={{ marginTop: 2 }}>
-                    {donnees.numeroMobileMoney}
-                  </div>
-                )}
-            </div>
+            ·  Merci pour votre confiance  ·
           </div>
-          {donnees.noteClient && (
-            <div
-              className="font-lora-italic"
-              style={{
-                fontSize: 13,
-                color: "var(--text-muted)",
-                maxWidth: 220,
-                textAlign: "right",
-              }}
-            >
-              {donnees.noteClient}
-            </div>
-          )}
         </div>
 
-        {/* BARRE DECORATIVE */}
+        {/* BOTTOM GRADIENT BAR */}
         <div
           style={{
-            height: 4,
+            height: 6,
             background:
-              "linear-gradient(90deg, var(--green), var(--gold))",
-            borderRadius: "0 0 4px 4px",
-            marginTop: 24,
-            marginLeft: -40,
-            marginRight: -40,
-            marginBottom: -40,
+              "linear-gradient(90deg, var(--gold) 0%, var(--green) 40%, var(--green) 100%)",
           }}
         />
       </div>

@@ -6,171 +6,301 @@ import {
   Image,
   StyleSheet,
   pdf,
+  Svg,
+  Circle,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import type { DonneesFacture } from "@/types";
 import { calculerTotaux, formatMontant, formatDateFr } from "@/lib/utils";
 
+const COLORS = {
+  green: "#1A6B3C",
+  greenDark: "#0F4526",
+  greenLight: "#E8F5EE",
+  gold: "#C8972A",
+  text: "#0D0D0D",
+  textMuted: "#6B6B6B",
+  border: "#E2DDD6",
+  bg: "#F7F5F0",
+  cardBg: "#FAF9F5",
+  white: "#FFFFFF",
+};
+
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 0,
     fontFamily: "Helvetica",
-    backgroundColor: "#FFFFFF",
-    color: "#0D0D0D",
+    backgroundColor: COLORS.white,
+    color: COLORS.text,
+  },
+  topBar: {
+    height: 8,
+    flexDirection: "row",
+  },
+  topBarGreen: {
+    flex: 6,
+    backgroundColor: COLORS.green,
+  },
+  topBarGold: {
+    flex: 4,
+    backgroundColor: COLORS.gold,
+  },
+  body: {
+    padding: 36,
+    paddingTop: 30,
+    paddingBottom: 24,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 8,
   },
-  headerLeft: { flexDirection: "column", maxWidth: "60%" },
+  headerLeft: { flexDirection: "column", maxWidth: "55%" },
   headerRight: { flexDirection: "column", alignItems: "flex-end" },
-  logo: { width: 60, height: 60, objectFit: "contain" },
+  logo: { width: 56, height: 56, objectFit: "contain" },
   logoInitiales: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#1A6B3C",
+    width: 56,
+    height: 56,
+    backgroundColor: COLORS.green,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 6,
   },
   logoInitialesText: {
-    color: "#FFFFFF",
-    fontSize: 20,
+    color: COLORS.white,
+    fontSize: 18,
     fontFamily: "Helvetica-Bold",
   },
   nomEntreprise: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
-    marginTop: 8,
+    color: COLORS.text,
+    marginTop: 12,
   },
-  texteGris: { fontSize: 10, color: "#6B6B6B", marginTop: 2 },
+  texteGris: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    lineHeight: 1.4,
+  },
   typeDocument: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: "Helvetica-Bold",
-    color: "#1A6B3C",
-    textAlign: "right",
+    color: COLORS.green,
   },
-  numero: {
-    fontSize: 11,
-    color: "#6B6B6B",
-    textAlign: "right",
+  numeroPill: {
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: COLORS.greenLight,
+    borderRadius: 999,
+  },
+  numeroPillText: {
+    color: COLORS.green,
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+  },
+  metaText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
     marginTop: 4,
   },
-  separateurVert: {
-    height: 2,
-    backgroundColor: "#1A6B3C",
-    opacity: 0.2,
-    marginVertical: 20,
+  ornament: {
+    position: "absolute",
+    top: 24,
+    right: 36,
+  },
+  clientCard: {
+    marginTop: 24,
+    backgroundColor: COLORS.bg,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.green,
+    borderLeftStyle: "solid",
+    padding: 14,
+    paddingLeft: 18,
+    borderRadius: 4,
   },
   labelSection: {
-    fontSize: 9,
-    color: "#6B6B6B",
+    fontSize: 8,
+    color: COLORS.textMuted,
     textTransform: "uppercase",
     letterSpacing: 1.5,
+    fontFamily: "Helvetica-Bold",
   },
   nomClient: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+    color: COLORS.text,
     marginTop: 6,
   },
   tableHeader: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2DDD6",
-    paddingBottom: 8,
+    backgroundColor: COLORS.green,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
     marginTop: 24,
+    borderRadius: 4,
   },
   tableHeaderText: {
-    fontSize: 9,
-    color: "#6B6B6B",
+    fontSize: 8,
+    color: COLORS.white,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 1.2,
+    fontFamily: "Helvetica-Bold",
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#F0EDE6",
+    borderBottomStyle: "solid",
     alignItems: "flex-start",
   },
-  cellDescription: { flex: 3, fontSize: 12, color: "#0D0D0D", paddingRight: 8 },
-  cellRight: { flex: 1, fontSize: 11, color: "#6B6B6B", textAlign: "right" },
-  cellTotal: {
-    flex: 1,
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: "#0D0D0D",
+  tableRowAlt: {
+    backgroundColor: COLORS.cardBg,
+  },
+  cellDescription: {
+    flex: 3,
+    fontSize: 11,
+    color: COLORS.text,
+    paddingRight: 8,
+  },
+  cellQte: {
+    flex: 0.6,
+    fontSize: 10,
+    color: COLORS.textMuted,
     textAlign: "right",
   },
-  totauxContainer: { alignItems: "flex-end", marginTop: 24 },
-  totalLine: { flexDirection: "row", marginBottom: 6 },
-  totalLabel: {
+  cellMoney: {
+    flex: 1,
+    fontSize: 10,
+    color: COLORS.textMuted,
+    textAlign: "right",
+  },
+  cellTva: {
+    flex: 0.6,
+    fontSize: 10,
+    color: COLORS.textMuted,
+    textAlign: "right",
+  },
+  cellTotal: {
+    flex: 1,
     fontSize: 11,
-    color: "#6B6B6B",
-    width: 100,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.text,
+    textAlign: "right",
+  },
+  totauxContainer: {
+    alignItems: "flex-end",
+    marginTop: 22,
+  },
+  totalLine: {
+    flexDirection: "row",
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+  },
+  totalLabel: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    width: 110,
     textAlign: "right",
     marginRight: 12,
   },
   totalValue: {
-    fontSize: 11,
-    color: "#0D0D0D",
-    width: 110,
+    fontSize: 10,
+    color: COLORS.textMuted,
+    width: 120,
     textAlign: "right",
   },
-  totalDivider: {
-    width: 222,
-    height: 1,
-    backgroundColor: "#E2DDD6",
-    marginVertical: 8,
+  totalTTCBox: {
+    marginTop: 8,
+    backgroundColor: COLORS.green,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: 256,
   },
   totalTTCLabel: {
-    fontSize: 12,
-    color: "#0D0D0D",
-    width: 100,
-    textAlign: "right",
-    marginRight: 12,
-    marginTop: 6,
+    fontSize: 10,
+    color: COLORS.white,
     fontFamily: "Helvetica-Bold",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
   },
-  totalTTC: {
-    fontSize: 22,
+  totalTTCValue: {
+    fontSize: 18,
+    color: COLORS.white,
     fontFamily: "Helvetica-Bold",
-    color: "#1A6B3C",
-    width: 110,
     textAlign: "right",
   },
   pied: {
     flexDirection: "row",
-    justifyContent: "space-between",
     marginTop: 32,
-    paddingTop: 16,
-    borderTopWidth: 2,
-    borderTopColor: "#1A6B3C",
-    borderTopStyle: "solid",
+    gap: 12,
   },
-  piedTexte: { fontSize: 10, color: "#6B6B6B" },
+  piedCard: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    padding: 12,
+    borderRadius: 4,
+  },
+  piedCardNote: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    padding: 12,
+    borderRadius: 4,
+    borderLeftWidth: 2,
+    borderLeftColor: COLORS.gold,
+    borderLeftStyle: "solid",
+  },
   piedLabel: {
-    fontSize: 9,
-    color: "#6B6B6B",
+    fontSize: 8,
+    color: COLORS.textMuted,
     textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 4,
+    letterSpacing: 1.2,
+    fontFamily: "Helvetica-Bold",
   },
-  note: {
-    fontSize: 11,
-    color: "#6B6B6B",
+  piedTexte: {
+    fontSize: 10,
+    color: COLORS.text,
+    marginTop: 4,
+  },
+  piedNumero: {
+    fontSize: 9,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  noteText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
     fontStyle: "italic",
-    maxWidth: 220,
-    textAlign: "right",
+    marginTop: 4,
+    lineHeight: 1.5,
   },
-  barreBas: {
-    height: 6,
-    backgroundColor: "#1A6B3C",
+  merci: {
     marginTop: 24,
-    borderRadius: 2,
+    textAlign: "center",
+    fontSize: 9,
+    color: COLORS.textMuted,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+  },
+  bottomBar: {
+    height: 6,
+    flexDirection: "row",
+    marginTop: "auto",
+  },
+  bottomBarGold: {
+    flex: 1,
+    backgroundColor: COLORS.gold,
+  },
+  bottomBarGreen: {
+    flex: 4,
+    backgroundColor: COLORS.green,
   },
 });
 
@@ -179,6 +309,29 @@ function getInitiales(nom: string): string {
   const parts = nom.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function CornerDots() {
+  const dots = [];
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      dots.push(
+        <Circle
+          key={`${r}-${c}`}
+          cx={c * 6 + 3}
+          cy={r * 6 + 3}
+          r={1.5}
+          fill={COLORS.gold}
+          opacity={0.25}
+        />,
+      );
+    }
+  }
+  return (
+    <Svg width={24} height={24} style={styles.ornament}>
+      {dots}
+    </Svg>
+  );
 }
 
 export function FacturePDFDocument({
@@ -191,146 +344,191 @@ export function FacturePDFDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            {d.logoEntreprise ? (
-              <Image style={styles.logo} src={d.logoEntreprise} />
-            ) : (
-              <View style={styles.logoInitiales}>
-                <Text style={styles.logoInitialesText}>
-                  {getInitiales(d.nomEntreprise || "Entreprise")}
+        <View style={styles.topBar}>
+          <View style={styles.topBarGreen} />
+          <View style={styles.topBarGold} />
+        </View>
+
+        <CornerDots />
+
+        <View style={styles.body}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              {d.logoEntreprise ? (
+                <Image style={styles.logo} src={d.logoEntreprise} />
+              ) : (
+                <View style={styles.logoInitiales}>
+                  <Text style={styles.logoInitialesText}>
+                    {getInitiales(d.nomEntreprise || "Entreprise")}
+                  </Text>
+                </View>
+              )}
+              <Text style={styles.nomEntreprise}>
+                {d.nomEntreprise || "Votre entreprise"}
+              </Text>
+              {(d.villeEntreprise || d.paysEntreprise) && (
+                <Text style={styles.texteGris}>
+                  {[d.villeEntreprise, d.paysEntreprise]
+                    .filter(Boolean)
+                    .join(", ")}
+                </Text>
+              )}
+              {d.emailEntreprise ? (
+                <Text style={styles.texteGris}>{d.emailEntreprise}</Text>
+              ) : null}
+              {d.telephoneEntreprise ? (
+                <Text style={styles.texteGris}>{d.telephoneEntreprise}</Text>
+              ) : null}
+            </View>
+            <View style={styles.headerRight}>
+              <Text style={styles.typeDocument}>
+                {d.typeDocument.toUpperCase()}
+              </Text>
+              <View style={styles.numeroPill}>
+                <Text style={styles.numeroPillText}>
+                  N° {d.numeroFacture}
                 </Text>
               </View>
-            )}
-            <Text style={styles.nomEntreprise}>
-              {d.nomEntreprise || "Votre entreprise"}
+              {d.dateEmission ? (
+                <Text style={styles.metaText}>
+                  Émis le {formatDateFr(d.dateEmission)}
+                </Text>
+              ) : null}
+              {d.dateEcheance ? (
+                <Text style={styles.metaText}>
+                  Échéance: {formatDateFr(d.dateEcheance)}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+
+          <View style={styles.clientCard}>
+            <Text style={styles.labelSection}>FACTURÉ À</Text>
+            <Text style={styles.nomClient}>
+              {d.nomClient || "Nom du client"}
             </Text>
-            {(d.villeEntreprise || d.paysEntreprise) && (
+            {d.entrepriseClient ? (
+              <Text style={styles.texteGris}>{d.entrepriseClient}</Text>
+            ) : null}
+            {(d.villeClient || d.paysClient) && (
               <Text style={styles.texteGris}>
-                {[d.villeEntreprise, d.paysEntreprise].filter(Boolean).join(", ")}
+                {[d.villeClient, d.paysClient].filter(Boolean).join(", ")}
               </Text>
             )}
-            {d.emailEntreprise ? (
-              <Text style={styles.texteGris}>{d.emailEntreprise}</Text>
+            {d.emailClient ? (
+              <Text style={styles.texteGris}>{d.emailClient}</Text>
             ) : null}
-            {d.telephoneEntreprise ? (
-              <Text style={styles.texteGris}>{d.telephoneEntreprise}</Text>
-            ) : null}
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.typeDocument}>
-              {d.typeDocument.toUpperCase()}
-            </Text>
-            <Text style={styles.numero}>N° {d.numeroFacture}</Text>
-            {d.dateEmission ? (
-              <Text style={styles.numero}>
-                Émis le {formatDateFr(d.dateEmission)}
-              </Text>
-            ) : null}
-            {d.dateEcheance ? (
-              <Text style={styles.numero}>
-                Échéance: {formatDateFr(d.dateEcheance)}
-              </Text>
+            {d.telephoneClient ? (
+              <Text style={styles.texteGris}>{d.telephoneClient}</Text>
             ) : null}
           </View>
-        </View>
 
-        <View style={styles.separateurVert} />
-
-        <View>
-          <Text style={styles.labelSection}>Facturé à</Text>
-          <Text style={styles.nomClient}>
-            {d.nomClient || "Nom du client"}
-          </Text>
-          {d.entrepriseClient ? (
-            <Text style={styles.texteGris}>{d.entrepriseClient}</Text>
-          ) : null}
-          {(d.villeClient || d.paysClient) && (
-            <Text style={styles.texteGris}>
-              {[d.villeClient, d.paysClient].filter(Boolean).join(", ")}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderText, { flex: 3 }]}>
+              Description
             </Text>
-          )}
-          {d.emailClient ? (
-            <Text style={styles.texteGris}>{d.emailClient}</Text>
-          ) : null}
-          {d.telephoneClient ? (
-            <Text style={styles.texteGris}>{d.telephoneClient}</Text>
-          ) : null}
-        </View>
+            <Text
+              style={[
+                styles.tableHeaderText,
+                { flex: 0.6, textAlign: "right" },
+              ]}
+            >
+              Qté
+            </Text>
+            <Text
+              style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
+            >
+              P.U.
+            </Text>
+            <Text
+              style={[
+                styles.tableHeaderText,
+                { flex: 0.6, textAlign: "right" },
+              ]}
+            >
+              TVA
+            </Text>
+            <Text
+              style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
+            >
+              Total
+            </Text>
+          </View>
 
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderText, { flex: 3 }]}>Description</Text>
-          <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            Qté
-          </Text>
-          <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            P.U.
-          </Text>
-          <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            TVA
-          </Text>
-          <Text style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}>
-            Total
-          </Text>
-        </View>
+          {d.lignes.map((l, idx) => {
+            const totalLigne = l.quantite * l.prixUnitaire * (1 + l.tva / 100);
+            return (
+              <View
+                key={l.id}
+                style={
+                  idx % 2 === 1
+                    ? [styles.tableRow, styles.tableRowAlt]
+                    : styles.tableRow
+                }
+              >
+                <Text style={styles.cellDescription}>
+                  {l.description || "—"}
+                </Text>
+                <Text style={styles.cellQte}>{l.quantite}</Text>
+                <Text style={styles.cellMoney}>
+                  {formatMontant(l.prixUnitaire, d.devise)}
+                </Text>
+                <Text style={styles.cellTva}>{l.tva}%</Text>
+                <Text style={styles.cellTotal}>
+                  {formatMontant(totalLigne, d.devise)}
+                </Text>
+              </View>
+            );
+          })}
 
-        {d.lignes.map((l) => {
-          const totalLigne = l.quantite * l.prixUnitaire * (1 + l.tva / 100);
-          return (
-            <View key={l.id} style={styles.tableRow}>
-              <Text style={styles.cellDescription}>
-                {l.description || "—"}
-              </Text>
-              <Text style={styles.cellRight}>{l.quantite}</Text>
-              <Text style={styles.cellRight}>
-                {formatMontant(l.prixUnitaire, d.devise)}
-              </Text>
-              <Text style={styles.cellRight}>{l.tva}%</Text>
-              <Text style={styles.cellTotal}>
-                {formatMontant(totalLigne, d.devise)}
+          <View style={styles.totauxContainer}>
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Sous-total HT</Text>
+              <Text style={styles.totalValue}>
+                {formatMontant(sousTotal, d.devise)}
               </Text>
             </View>
-          );
-        })}
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>TVA</Text>
+              <Text style={styles.totalValue}>
+                {formatMontant(totalTva, d.devise)}
+              </Text>
+            </View>
+            <View style={styles.totalTTCBox}>
+              <Text style={styles.totalTTCLabel}>Total TTC</Text>
+              <Text style={styles.totalTTCValue}>
+                {formatMontant(total, d.devise)}
+              </Text>
+            </View>
+          </View>
 
-        <View style={styles.totauxContainer}>
-          <View style={styles.totalLine}>
-            <Text style={styles.totalLabel}>Sous-total HT</Text>
-            <Text style={styles.totalValue}>
-              {formatMontant(sousTotal, d.devise)}
-            </Text>
+          <View style={styles.pied}>
+            <View style={styles.piedCard}>
+              <Text style={styles.piedLabel}>PAIEMENT</Text>
+              <Text style={styles.piedTexte}>{d.modePaiement}</Text>
+              {d.modePaiement === "Mobile Money" && d.numeroMobileMoney ? (
+                <Text style={styles.piedNumero}>{d.numeroMobileMoney}</Text>
+              ) : null}
+            </View>
+            {d.noteClient ? (
+              <View style={styles.piedCardNote}>
+                <Text style={styles.piedLabel}>NOTE</Text>
+                <Text style={styles.noteText}>{d.noteClient}</Text>
+              </View>
+            ) : (
+              <View style={{ flex: 1 }} />
+            )}
           </View>
-          <View style={styles.totalLine}>
-            <Text style={styles.totalLabel}>TVA</Text>
-            <Text style={styles.totalValue}>
-              {formatMontant(totalTva, d.devise)}
-            </Text>
-          </View>
-          <View style={styles.totalDivider} />
-          <View style={styles.totalLine}>
-            <Text style={styles.totalTTCLabel}>Total TTC</Text>
-            <Text style={styles.totalTTC}>
-              {formatMontant(total, d.devise)}
-            </Text>
-          </View>
+
+          <Text style={styles.merci}>
+            ·  MERCI POUR VOTRE CONFIANCE  ·
+          </Text>
         </View>
 
-        <View style={styles.pied}>
-          <View>
-            <Text style={styles.piedLabel}>Mode de paiement</Text>
-            <Text style={styles.piedTexte}>{d.modePaiement}</Text>
-            {d.modePaiement === "Mobile Money" && d.numeroMobileMoney ? (
-              <Text style={styles.piedTexte}>{d.numeroMobileMoney}</Text>
-            ) : null}
-          </View>
-          {d.noteClient ? (
-            <Text style={styles.note}>{d.noteClient}</Text>
-          ) : (
-            <Text> </Text>
-          )}
+        <View style={styles.bottomBar}>
+          <View style={styles.bottomBarGold} />
+          <View style={styles.bottomBarGreen} />
         </View>
-
-        <View style={styles.barreBas} />
       </Page>
     </Document>
   );
