@@ -8,8 +8,10 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
+import QRCode from "qrcode";
 import type { DonneesFacture } from "@/types";
 import { calculerTotaux, formatMontant, formatDateFr } from "@/lib/utils";
+import { buildMobileMoneyPayload } from "./Apercu";
 
 const styles = StyleSheet.create({
   page: {
@@ -142,10 +144,54 @@ const styles = StyleSheet.create({
     width: 110,
     textAlign: "right",
   },
+  paiementBox: {
+    marginTop: 28,
+    padding: 14,
+    backgroundColor: "#F7F5F0",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#E2DDD6",
+    borderStyle: "solid",
+    flexDirection: "row",
+    gap: 14,
+  },
+  qrImage: {
+    width: 96,
+    height: 96,
+    backgroundColor: "#FFFFFF",
+    padding: 2,
+  },
+  paiementLabel: {
+    fontSize: 8,
+    color: "#6B6B6B",
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    fontFamily: "Helvetica-Bold",
+  },
+  paiementTitre: {
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: "#0D0D0D",
+    marginTop: 4,
+  },
+  paiementSubText: { fontSize: 10, color: "#6B6B6B", marginTop: 2 },
+  paiementHelp: {
+    fontSize: 9,
+    color: "#6B6B6B",
+    marginTop: 6,
+    fontStyle: "italic",
+  },
+  ribValue: {
+    fontSize: 10,
+    color: "#0D0D0D",
+    fontFamily: "Courier",
+    marginTop: 4,
+    letterSpacing: 0.5,
+  },
   pied: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 32,
+    marginTop: 28,
     paddingTop: 16,
     borderTopWidth: 2,
     borderTopColor: "#1A6B3C",
@@ -181,12 +227,23 @@ function getInitiales(nom: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+interface FacturePDFProps {
+  donneesFacture: DonneesFacture;
+  qrDataUrl?: string | null;
+}
+
 export function FacturePDFDocument({
   donneesFacture: d,
-}: {
-  donneesFacture: DonneesFacture;
-}) {
+  qrDataUrl,
+}: FacturePDFProps) {
   const { sousTotal, totalTva, total } = calculerTotaux(d.lignes);
+  const showQr =
+    d.modePaiement === "Mobile Money" &&
+    d.numeroMobileMoney.trim().length > 0 &&
+    !!qrDataUrl;
+  const showBank =
+    d.modePaiement === "Virement bancaire" &&
+    (d.nomBanque.trim() || d.ribIban.trim() || d.codeSwift.trim());
 
   return (
     <Document>
@@ -315,13 +372,52 @@ export function FacturePDFDocument({
           </View>
         </View>
 
+        {(showQr || showBank) && (
+          <View style={styles.paiementBox}>
+            {showQr && qrDataUrl && (
+              <>
+                <Image src={qrDataUrl} style={styles.qrImage} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.paiementLabel}>
+                    PAIEMENT MOBILE MONEY
+                  </Text>
+                  <Text style={styles.paiementTitre}>
+                    {d.numeroMobileMoney}
+                  </Text>
+                  {d.operateurMobileMoney ? (
+                    <Text style={styles.paiementSubText}>
+                      {d.operateurMobileMoney}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.paiementHelp}>
+                    Scannez ce QR code pour obtenir les détails du paiement.
+                  </Text>
+                </View>
+              </>
+            )}
+            {showBank && (
+              <View style={{ flex: 1 }}>
+                <Text style={styles.paiementLabel}>COORDONNÉES BANCAIRES</Text>
+                {d.nomBanque ? (
+                  <Text style={styles.paiementTitre}>{d.nomBanque}</Text>
+                ) : null}
+                {d.ribIban ? (
+                  <Text style={styles.ribValue}>{d.ribIban}</Text>
+                ) : null}
+                {d.codeSwift ? (
+                  <Text style={styles.paiementSubText}>
+                    SWIFT / BIC : {d.codeSwift}
+                  </Text>
+                ) : null}
+              </View>
+            )}
+          </View>
+        )}
+
         <View style={styles.pied}>
           <View>
             <Text style={styles.piedLabel}>Mode de paiement</Text>
             <Text style={styles.piedTexte}>{d.modePaiement}</Text>
-            {d.modePaiement === "Mobile Money" && d.numeroMobileMoney ? (
-              <Text style={styles.piedTexte}>{d.numeroMobileMoney}</Text>
-            ) : null}
           </View>
           {d.noteClient ? (
             <Text style={styles.note}>{d.noteClient}</Text>
@@ -337,8 +433,23 @@ export function FacturePDFDocument({
 }
 
 export async function generatePDF(donnees: DonneesFacture) {
+  let qrDataUrl: string | null = null;
+  if (
+    donnees.modePaiement === "Mobile Money" &&
+    donnees.numeroMobileMoney.trim().length > 0
+  ) {
+    try {
+      qrDataUrl = await QRCode.toDataURL(buildMobileMoneyPayload(donnees), {
+        margin: 1,
+        width: 240,
+        color: { dark: "#0F4526", light: "#FFFFFF" },
+      });
+    } catch {
+      qrDataUrl = null;
+    }
+  }
   const blob = await pdf(
-    <FacturePDFDocument donneesFacture={donnees} />,
+    <FacturePDFDocument donneesFacture={donnees} qrDataUrl={qrDataUrl} />,
   ).toBlob();
   const safeClient = (donnees.nomClient || "client")
     .trim()

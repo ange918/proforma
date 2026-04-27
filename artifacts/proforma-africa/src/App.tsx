@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ import type { DonneesFacture } from "@/types";
 import { genererNumero } from "@/lib/utils";
 
 const queryClient = new QueryClient();
+const STORAGE_KEY = "proforma-africa:donnees:v1";
 
 function donneesInitiales(): DonneesFacture {
   const today = new Date().toISOString().slice(0, 10);
@@ -33,6 +34,10 @@ function donneesInitiales(): DonneesFacture {
     devise: "XOF",
     modePaiement: "Mobile Money",
     numeroMobileMoney: "",
+    operateurMobileMoney: "",
+    nomBanque: "",
+    ribIban: "",
+    codeSwift: "",
     lignes: [
       {
         id: "init-1",
@@ -46,15 +51,60 @@ function donneesInitiales(): DonneesFacture {
   };
 }
 
+function chargerDepuisStockage(): DonneesFacture | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const defaults = donneesInitiales();
+    return { ...defaults, ...parsed } as DonneesFacture;
+  } catch {
+    return null;
+  }
+}
+
 function Page() {
-  const [donnees, setDonnees] = useState<DonneesFacture>(() =>
-    donneesInitiales(),
+  const [donnees, setDonnees] = useState<DonneesFacture>(
+    () => chargerDepuisStockage() ?? donneesInitiales(),
   );
+  const [sauvegarde, setSauvegarde] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const t = setTimeout(() => {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(donnees));
+        setSauvegarde(true);
+        const hide = setTimeout(() => setSauvegarde(false), 1500);
+        return () => clearTimeout(hide);
+      } catch {
+        // ignore quota errors silently
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [donnees]);
+
+  function reinitialiser() {
+    if (typeof window === "undefined") return;
+    const ok = window.confirm(
+      "Voulez-vous vraiment réinitialiser le formulaire ? Toutes vos données locales seront effacées.",
+    );
+    if (!ok) return;
+    window.localStorage.removeItem(STORAGE_KEY);
+    setDonnees(donneesInitiales());
+  }
 
   return (
     <>
       <div className="proforma-layout">
-        <Formulaire donnees={donnees} setDonnees={setDonnees} />
+        <Formulaire
+          donnees={donnees}
+          setDonnees={setDonnees}
+          sauvegarde={sauvegarde}
+          onReinitialiser={reinitialiser}
+        />
         <Apercu donnees={donnees} />
       </div>
       <style>{`

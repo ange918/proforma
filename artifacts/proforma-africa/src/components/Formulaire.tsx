@@ -11,6 +11,9 @@ import {
   ListChecks,
   NoteBlank,
   CircleNotch,
+  ArrowCounterClockwise,
+  CheckCircle,
+  Bank,
 } from "@phosphor-icons/react";
 import type { DonneesFacture, LigneService, TypeDocument } from "@/types";
 import { calculerTotaux, formatMontant, genererNumero } from "@/lib/utils";
@@ -19,6 +22,8 @@ import { generatePDF } from "./FacturePDF";
 interface Props {
   donnees: DonneesFacture;
   setDonnees: React.Dispatch<React.SetStateAction<DonneesFacture>>;
+  sauvegarde: boolean;
+  onReinitialiser: () => void;
 }
 
 const PAYS_OPTIONS = [
@@ -39,12 +44,26 @@ const MODES_PAIEMENT = [
 ] as const;
 const TYPES_DOC: TypeDocument[] = ["Facture", "Devis", "Proforma"];
 const TVA_OPTIONS = [0, 10, 18, 20];
+const OPERATEURS_MM = [
+  "MTN MoMo",
+  "Orange Money",
+  "Wave",
+  "Moov Money",
+  "Free Money",
+  "Airtel Money",
+  "Autre",
+];
 
 function uid() {
   return Math.random().toString(36).slice(2, 11);
 }
 
-export default function Formulaire({ donnees, setDonnees }: Props) {
+export default function Formulaire({
+  donnees,
+  setDonnees,
+  sauvegarde,
+  onReinitialiser,
+}: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [generating, setGenerating] = useState(false);
 
@@ -136,27 +155,82 @@ export default function Formulaire({ donnees, setDonnees }: Props) {
     >
       <div style={{ padding: "32px 32px 24px" }}>
         {/* HEADER */}
-        <div style={{ marginBottom: 32 }}>
-          <div
-            className="font-unbounded"
-            style={{ fontSize: 22, lineHeight: 1, letterSpacing: "-0.01em" }}
-          >
-            <span style={{ fontWeight: 700, color: "var(--green)" }}>
-              PROFORMA
-            </span>
-            <span style={{ fontWeight: 400, color: "var(--gold)" }}>
-              AFRICA
-            </span>
+        <div
+          style={{
+            marginBottom: 32,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: 16,
+          }}
+        >
+          <div>
+            <div
+              className="font-unbounded"
+              style={{ fontSize: 22, lineHeight: 1, letterSpacing: "-0.01em" }}
+            >
+              <span style={{ fontWeight: 700, color: "var(--green)" }}>
+                PROFORMA
+              </span>
+              <span style={{ fontWeight: 400, color: "var(--gold)" }}>
+                AFRICA
+              </span>
+            </div>
+            <div
+              className="font-jakarta"
+              style={{
+                fontSize: 14,
+                color: "var(--text-muted)",
+                marginTop: 6,
+              }}
+            >
+              Générez votre facture en 2 minutes.
+            </div>
           </div>
           <div
-            className="font-jakarta"
             style={{
-              fontSize: 14,
-              color: "var(--text-muted)",
-              marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              flexShrink: 0,
             }}
           >
-            Générez votre facture en 2 minutes.
+            <div
+              style={{
+                fontSize: 12,
+                color: sauvegarde ? "var(--green)" : "var(--text-muted)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                opacity: sauvegarde ? 1 : 0.6,
+                transition: "opacity 0.2s, color 0.2s",
+                whiteSpace: "nowrap",
+              }}
+              title="Vos données sont sauvegardées dans votre navigateur"
+            >
+              <CheckCircle size={14} weight={sauvegarde ? "fill" : "regular"} />
+              {sauvegarde ? "Sauvegardé" : "Auto-sauvegarde"}
+            </div>
+            <button
+              type="button"
+              onClick={onReinitialiser}
+              title="Réinitialiser le formulaire"
+              style={{
+                background: "transparent",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                padding: "6px 10px",
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                fontSize: 12,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <ArrowCounterClockwise size={13} />
+              Réinitialiser
+            </button>
           </div>
         </div>
 
@@ -375,15 +449,101 @@ export default function Formulaire({ donnees, setDonnees }: Props) {
           </Grid2>
 
           {donnees.modePaiement === "Mobile Money" && (
-            <div className="pa-fade-in" style={{ marginTop: 8 }}>
-              <Field label="Numéro Mobile Money">
-                <input
-                  className="pa-input"
-                  value={donnees.numeroMobileMoney}
-                  onChange={(e) => update("numeroMobileMoney", e.target.value)}
-                  placeholder="+229 97 00 00 00"
-                />
-              </Field>
+            <div className="pa-fade-in" style={{ marginTop: 16 }}>
+              <Grid2>
+                <Field label="Numéro Mobile Money">
+                  <input
+                    className="pa-input"
+                    value={donnees.numeroMobileMoney}
+                    onChange={(e) =>
+                      update("numeroMobileMoney", e.target.value)
+                    }
+                    placeholder="+229 97 00 00 00"
+                  />
+                </Field>
+                <Field label="Opérateur">
+                  <select
+                    className="pa-select"
+                    value={donnees.operateurMobileMoney}
+                    onChange={(e) =>
+                      update("operateurMobileMoney", e.target.value)
+                    }
+                  >
+                    <option value="">Sélectionner un opérateur</option>
+                    {OPERATEURS_MM.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </Grid2>
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <span style={{ color: "var(--green)" }}>•</span>
+                Un QR code sera généré automatiquement sur la facture pour
+                faciliter le paiement.
+              </div>
+            </div>
+          )}
+
+          {donnees.modePaiement === "Virement bancaire" && (
+            <div className="pa-fade-in" style={{ marginTop: 16 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  marginBottom: 10,
+                }}
+              >
+                <Bank size={14} color="var(--green)" />
+                Coordonnées bancaires (apparaissent sur la facture)
+              </div>
+              <Grid2>
+                <Field label="Nom de la banque" full>
+                  <input
+                    className="pa-input"
+                    value={donnees.nomBanque}
+                    onChange={(e) => update("nomBanque", e.target.value)}
+                    placeholder="Ex: Ecobank, BICIS, BOA, Société Générale..."
+                  />
+                </Field>
+                <Field label="RIB / IBAN / Numéro de compte" full>
+                  <input
+                    className="pa-input"
+                    value={donnees.ribIban}
+                    onChange={(e) => update("ribIban", e.target.value)}
+                    placeholder="BJ06 0001 0123 4567 8901 2345 67"
+                    style={{
+                      fontFamily:
+                        "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    }}
+                  />
+                </Field>
+                <Field label="Code SWIFT / BIC" full>
+                  <input
+                    className="pa-input"
+                    value={donnees.codeSwift}
+                    onChange={(e) => update("codeSwift", e.target.value)}
+                    placeholder="Optionnel — ex: ECOCBJBJ"
+                    style={{
+                      fontFamily:
+                        "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    }}
+                  />
+                </Field>
+              </Grid2>
             </div>
           )}
         </Section>

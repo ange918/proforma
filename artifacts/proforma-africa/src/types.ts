@@ -36,6 +36,11 @@ export interface DonneesFacture {
   devise: Devise;
   modePaiement: ModePaiement;
   numeroMobileMoney: string;
+  operateurMobileMoney: string;
+
+  nomBanque: string;
+  ribIban: string;
+  codeSwift: string;
 
   lignes: LigneService[];
 
