@@ -598,7 +598,45 @@ export function FacturePDFDocument({
   );
 }
 
+async function normaliserImage(dataUrl: string | null): Promise<string | null> {
+  if (!dataUrl) return null;
+  const isPng = dataUrl.startsWith("data:image/png");
+  const isJpeg =
+    dataUrl.startsWith("data:image/jpeg") ||
+    dataUrl.startsWith("data:image/jpg");
+  if (isPng || isJpeg) return dataUrl;
+  return new Promise((resolve) => {
+    const img = document.createElement("img");
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || img.width || 300;
+        canvas.height = img.naturalHeight || img.height || 300;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(dataUrl); return; }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
 export async function generatePDF(donnees: DonneesFacture) {
+  const [logo, signature] = await Promise.all([
+    normaliserImage(donnees.logoEntreprise),
+    normaliserImage(donnees.signatureImage),
+  ]);
+
+  const donneesNormalisees: DonneesFacture = {
+    ...donnees,
+    logoEntreprise: logo,
+    signatureImage: signature,
+  };
+
   let qrDataUrl: string | null = null;
   if (
     donnees.modePaiement === "Mobile Money" &&
@@ -615,7 +653,7 @@ export async function generatePDF(donnees: DonneesFacture) {
     }
   }
   const blob = await pdf(
-    <FacturePDFDocument donneesFacture={donnees} qrDataUrl={qrDataUrl} />,
+    <FacturePDFDocument donneesFacture={donneesNormalisees} qrDataUrl={qrDataUrl} />,
   ).toBlob();
   const safeClient = (donnees.nomClient || "client")
     .trim()

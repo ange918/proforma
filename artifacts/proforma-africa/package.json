@@ -80,6 +80,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "qrcode": "^1.5.4"
   }
 }
