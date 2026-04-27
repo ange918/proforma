@@ -74,11 +74,6 @@ export default function Hero({ onCommencer }: Props) {
           <span className="pa-hero-brand-africa">AFRICA</span>
         </div>
 
-        {/* Badge pays */}
-        <div className="pa-hero-badge">
-          🌍 Conçu pour l'Afrique francophone
-        </div>
-
         {/* Titre principal */}
         <h1 className="pa-hero-titre">
           Factures & devis<br />
