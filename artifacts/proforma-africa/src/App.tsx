@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  PencilSimple,
+  Eye,
+  ClockCounterClockwise,
+} from "@phosphor-icons/react";
 import Formulaire from "@/components/Formulaire";
 import Apercu from "@/components/Apercu";
 import Historique from "@/components/Historique";
 import type { DonneesFacture, EntreeHistorique, TemplateService } from "@/types";
 import { genererNumero } from "@/lib/utils";
+
+type Onglet = "formulaire" | "apercu" | "historique";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +126,7 @@ function Page() {
     () => chargerTemplates(),
   );
   const [showHistorique, setShowHistorique] = useState(false);
+  const [onglet, setOnglet] = useState<Onglet>("formulaire");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -199,32 +207,77 @@ function Page() {
     setTemplates((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function handleShowHistorique() {
+    setOnglet("historique");
+    setShowHistorique(true);
+  }
+
   return (
     <>
       <div className="proforma-layout">
-        <Formulaire
-          donnees={donnees}
-          setDonnees={setDonnees}
-          sauvegarde={sauvegarde}
-          onReinitialiser={reinitialiser}
-          templates={templates}
-          onAjouterTemplate={ajouterTemplate}
-          onSupprimerTemplate={supprimerTemplate}
-          onShowHistorique={() => setShowHistorique(true)}
-          onSauvegarderHistorique={sauvegarderHistorique}
-        />
-        <Apercu donnees={donnees} />
+        <div
+          className="proforma-panel"
+          data-panel="formulaire"
+          data-active={onglet === "formulaire" ? "true" : "false"}
+        >
+          <Formulaire
+            donnees={donnees}
+            setDonnees={setDonnees}
+            sauvegarde={sauvegarde}
+            onReinitialiser={reinitialiser}
+            templates={templates}
+            onAjouterTemplate={ajouterTemplate}
+            onSupprimerTemplate={supprimerTemplate}
+            onShowHistorique={handleShowHistorique}
+            onSauvegarderHistorique={sauvegarderHistorique}
+          />
+        </div>
+        <div
+          className="proforma-panel"
+          data-panel="apercu"
+          data-active={onglet === "apercu" ? "true" : "false"}
+        >
+          <Apercu donnees={donnees} />
+        </div>
       </div>
 
       {showHistorique && (
         <Historique
           historique={historique}
-          onClose={() => setShowHistorique(false)}
+          onClose={() => { setShowHistorique(false); setOnglet("formulaire"); }}
           onCharger={chargerEntree}
           onDupliquer={dupliquerEntree}
           onSupprimer={supprimerEntree}
         />
       )}
+
+      {/* Mobile bottom tab bar */}
+      <nav className="pa-mobile-tabs" aria-label="Navigation">
+        <button
+          className={`pa-tab-btn${onglet === "formulaire" ? " pa-tab-btn--active" : ""}`}
+          onClick={() => { setOnglet("formulaire"); setShowHistorique(false); }}
+          type="button"
+        >
+          <PencilSimple size={22} weight={onglet === "formulaire" ? "fill" : "regular"} />
+          <span>Formulaire</span>
+        </button>
+        <button
+          className={`pa-tab-btn${onglet === "apercu" ? " pa-tab-btn--active" : ""}`}
+          onClick={() => { setOnglet("apercu"); setShowHistorique(false); }}
+          type="button"
+        >
+          <Eye size={22} weight={onglet === "apercu" ? "fill" : "regular"} />
+          <span>Aperçu</span>
+        </button>
+        <button
+          className={`pa-tab-btn${onglet === "historique" ? " pa-tab-btn--active" : ""}`}
+          onClick={handleShowHistorique}
+          type="button"
+        >
+          <ClockCounterClockwise size={22} weight={onglet === "historique" ? "fill" : "regular"} />
+          <span>Historique</span>
+        </button>
+      </nav>
 
       <style>{`
         .proforma-layout {
@@ -234,16 +287,63 @@ function Page() {
           width: 100%;
           overflow: hidden;
         }
-        @media (max-width: 1024px) {
+        .proforma-panel {
+          min-width: 0;
+          overflow: hidden;
+        }
+        .pa-mobile-tabs {
+          display: none;
+        }
+        @media (max-width: 767px) {
           .proforma-layout {
             grid-template-columns: minmax(0, 1fr);
-            height: auto;
-            min-height: 100vh;
-            overflow: auto;
+            height: calc(100dvh - 64px);
+            overflow: hidden;
           }
-          .proforma-layout > div {
-            height: auto !important;
-            min-height: 100vh;
+          .proforma-panel {
+            height: calc(100dvh - 64px);
+            overflow: hidden;
+          }
+          .proforma-panel[data-active="false"] {
+            display: none;
+          }
+          .proforma-panel[data-active="true"] {
+            display: block;
+          }
+          .pa-mobile-tabs {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            z-index: 200;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+          }
+          .pa-tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            font-weight: 500;
+            padding: 8px 4px;
+            transition: color 0.15s;
+          }
+          .pa-tab-btn--active {
+            color: var(--green);
+          }
+          .pa-tab-btn:active {
+            opacity: 0.7;
           }
         }
       `}</style>

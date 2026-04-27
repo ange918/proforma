@@ -109,7 +109,7 @@ export default function Apercu({ donnees }: { donnees: DonneesFacture }) {
       style={{
         background: "#E8E4DC",
         padding: 24,
-        height: "100vh",
+        height: "100%",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",

@@ -69,6 +69,20 @@ textarea {
   outline: none;
 }
 
+@media (max-width: 767px) {
+  .pa-input,
+  .pa-select,
+  .pa-textarea {
+    font-size: 16px;
+    padding: 12px 14px;
+    min-height: 48px;
+  }
+  .pa-select {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+}
+
 .pa-input:focus,
 .pa-select:focus,
 .pa-textarea:focus {
@@ -138,4 +152,41 @@ textarea {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.22);
+}
+
+/* ─── Mobile layout helpers ─────────────────────────── */
+
+.pa-form-content {
+  padding: 32px 32px 24px;
+}
+
+@media (max-width: 767px) {
+  html, body, #root {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .pa-form-content {
+    padding: 20px 16px 100px;
+  }
+
+  .pa-desktop-only {
+    display: none !important;
+  }
+
+  .pa-formulaire-root {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Thinner scrollbar on mobile */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Larger touch targets for buttons in the form */
+  .pa-btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }

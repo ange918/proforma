@@ -239,15 +239,16 @@ export default function Formulaire({
 
   return (
     <div
+      className="pa-formulaire-root"
       style={{
         background: "var(--bg)",
-        height: "100vh",
+        height: "100%",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <div style={{ padding: "32px 32px 24px" }}>
+      <div className="pa-form-content">
         {/* HEADER */}
         <div
           style={{
@@ -311,6 +312,7 @@ export default function Formulaire({
               type="button"
               onClick={onShowHistorique}
               title="Historique des factures"
+              className="pa-desktop-only"
               style={{
                 background: "transparent",
                 border: "1px solid var(--border)",
