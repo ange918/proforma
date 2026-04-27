@@ -6,8 +6,6 @@ import {
   Image,
   StyleSheet,
   pdf,
-  Svg,
-  Circle,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import type { DonneesFacture } from "@/types";
@@ -21,144 +19,184 @@ const COLORS = {
   text: "#0D0D0D",
   textMuted: "#6B6B6B",
   border: "#E2DDD6",
+  borderLight: "#F0EDE6",
   bg: "#F7F5F0",
-  cardBg: "#FAF9F5",
   white: "#FFFFFF",
 };
 
 const styles = StyleSheet.create({
   page: {
-    padding: 0,
+    padding: 48,
+    paddingTop: 44,
     fontFamily: "Helvetica",
     backgroundColor: COLORS.white,
     color: COLORS.text,
+    position: "relative",
   },
-  topBar: {
-    height: 8,
-    flexDirection: "row",
-  },
-  topBarGreen: {
-    flex: 6,
-    backgroundColor: COLORS.green,
-  },
-  topBarGold: {
-    flex: 4,
-    backgroundColor: COLORS.gold,
-  },
-  body: {
-    padding: 36,
-    paddingTop: 30,
-    paddingBottom: 24,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  headerLeft: { flexDirection: "column", maxWidth: "55%" },
-  headerRight: { flexDirection: "column", alignItems: "flex-end" },
-  logo: { width: 56, height: 56, objectFit: "contain" },
-  logoInitiales: {
-    width: 56,
-    height: 56,
-    backgroundColor: COLORS.green,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 6,
-  },
-  logoInitialesText: {
-    color: COLORS.white,
-    fontSize: 18,
+  smallLabel: {
+    fontSize: 7,
+    color: COLORS.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 2.2,
     fontFamily: "Helvetica-Bold",
   },
-  nomEntreprise: {
-    fontSize: 14,
+  smallLabelDark: {
+    fontSize: 7,
+    color: COLORS.text,
+    textTransform: "uppercase",
+    letterSpacing: 2.2,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // Top wordmark
+  topRule: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 24,
+  },
+  topRuleLine: { flex: 1, height: 0.6, backgroundColor: COLORS.gold },
+  topWordmark: {
+    fontSize: 9,
+    color: COLORS.gold,
+    letterSpacing: 4,
+    fontFamily: "Helvetica-Bold",
+  },
+  topWordmarkAccent: {
+    color: COLORS.green,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // Big title block
+  titleBlock: { alignItems: "center", marginBottom: 6 },
+  subTitle: {
+    fontSize: 7,
+    color: COLORS.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 2.2,
+    fontFamily: "Helvetica-Bold",
+  },
+  bigTitle: {
+    fontSize: 48,
     fontFamily: "Helvetica-Bold",
     color: COLORS.text,
+    letterSpacing: -2,
+    marginTop: 8,
+  },
+  numberRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
     marginTop: 12,
   },
-  texteGris: {
+  numberRule: { width: 22, height: 0.6, backgroundColor: COLORS.gold },
+  numberText: {
+    fontSize: 11,
+    color: COLORS.text,
+    letterSpacing: 2,
+    fontFamily: "Helvetica",
+  },
+  dates: {
     fontSize: 10,
     color: COLORS.textMuted,
-    marginTop: 2,
-    lineHeight: 1.4,
+    fontStyle: "italic",
+    marginTop: 12,
   },
-  typeDocument: {
-    fontSize: 32,
-    fontFamily: "Helvetica-Bold",
-    color: COLORS.green,
+
+  // De / À two-column block
+  twoCol: {
+    flexDirection: "row",
+    marginTop: 36,
+    position: "relative",
   },
-  numeroPill: {
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: COLORS.greenLight,
-    borderRadius: 999,
-  },
-  numeroPillText: {
-    color: COLORS.green,
-    fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-  },
-  metaText: {
-    fontSize: 10,
-    color: COLORS.textMuted,
-    marginTop: 4,
-  },
-  ornament: {
+  colDe: { flex: 1, paddingRight: 18 },
+  colA: { flex: 1, paddingLeft: 18 },
+  divider: {
     position: "absolute",
-    top: 24,
-    right: 36,
+    left: "50%",
+    top: 0,
+    bottom: 0,
+    width: 0.6,
+    backgroundColor: COLORS.border,
   },
-  clientCard: {
-    marginTop: 24,
-    backgroundColor: COLORS.bg,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.green,
-    borderLeftStyle: "solid",
-    padding: 14,
-    paddingLeft: 18,
-    borderRadius: 4,
+  initialeBox: {
+    width: 32,
+    height: 32,
+    backgroundColor: COLORS.green,
+    borderRadius: 3,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  labelSection: {
-    fontSize: 8,
-    color: COLORS.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
+  initialeBoxClient: {
+    width: 32,
+    height: 32,
+    borderWidth: 0.8,
+    borderColor: COLORS.gold,
+    borderStyle: "dashed",
+    borderRadius: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  initialeText: {
+    color: COLORS.white,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
   },
-  nomClient: {
-    fontSize: 14,
+  initialeTextClient: {
+    color: COLORS.gold,
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+  },
+  partyHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  partyName: {
+    fontSize: 12,
     fontFamily: "Helvetica-Bold",
     color: COLORS.text,
-    marginTop: 6,
+    marginTop: 10,
   },
+  partyText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 3,
+    lineHeight: 1.4,
+  },
+
+  // Section
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 36,
+  },
+  sectionLine: { flex: 1, height: 0.6, backgroundColor: COLORS.border },
+
+  // Table
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: COLORS.green,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    marginTop: 24,
-    borderRadius: 4,
+    paddingBottom: 8,
+    marginTop: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.text,
+    borderBottomStyle: "solid",
   },
   tableHeaderText: {
-    fontSize: 8,
-    color: COLORS.white,
+    fontSize: 7,
+    color: COLORS.text,
     textTransform: "uppercase",
-    letterSpacing: 1.2,
+    letterSpacing: 2,
     fontFamily: "Helvetica-Bold",
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0EDE6",
+    paddingVertical: 12,
+    borderBottomWidth: 0.6,
+    borderBottomColor: COLORS.borderLight,
     borderBottomStyle: "solid",
     alignItems: "flex-start",
-  },
-  tableRowAlt: {
-    backgroundColor: COLORS.cardBg,
   },
   cellDescription: {
     flex: 3,
@@ -191,86 +229,85 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     textAlign: "right",
   },
+
+  // Totaux
   totauxContainer: {
     alignItems: "flex-end",
-    marginTop: 22,
+    marginTop: 24,
   },
   totalLine: {
     flexDirection: "row",
-    paddingHorizontal: 14,
     paddingVertical: 4,
+    width: 280,
+    justifyContent: "space-between",
   },
-  totalLabel: {
-    fontSize: 10,
-    color: COLORS.textMuted,
-    width: 110,
-    textAlign: "right",
-    marginRight: 12,
-  },
-  totalValue: {
-    fontSize: 10,
-    color: COLORS.textMuted,
-    width: 120,
-    textAlign: "right",
-  },
+  totalLabel: { fontSize: 10, color: COLORS.textMuted },
+  totalValue: { fontSize: 10, color: COLORS.textMuted },
   totalTTCBox: {
-    marginTop: 8,
-    backgroundColor: COLORS.green,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 4,
+    marginTop: 12,
+    paddingTop: 14,
+    paddingBottom: 14,
+    borderTopWidth: 1.5,
+    borderTopColor: COLORS.gold,
+    borderTopStyle: "solid",
+    borderBottomWidth: 1.5,
+    borderBottomColor: COLORS.gold,
+    borderBottomStyle: "solid",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: 256,
+    width: 280,
   },
   totalTTCLabel: {
-    fontSize: 10,
-    color: COLORS.white,
-    fontFamily: "Helvetica-Bold",
-    letterSpacing: 1.2,
+    fontSize: 7,
+    color: COLORS.textMuted,
     textTransform: "uppercase",
-  },
-  totalTTCValue: {
-    fontSize: 18,
-    color: COLORS.white,
+    letterSpacing: 2.2,
     fontFamily: "Helvetica-Bold",
-    textAlign: "right",
   },
+  totalTTCSub: { fontSize: 9, color: COLORS.textMuted, marginTop: 2 },
+  totalTTCValue: {
+    fontSize: 22,
+    color: COLORS.green,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: -0.5,
+  },
+
+  // Pied
   pied: {
     flexDirection: "row",
     marginTop: 32,
-    gap: 12,
+    gap: 24,
   },
-  piedCard: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-    padding: 12,
-    borderRadius: 4,
+  piedCol: { flex: 1 },
+  paiementRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 10,
   },
-  piedCardNote: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-    padding: 12,
-    borderRadius: 4,
-    borderLeftWidth: 2,
-    borderLeftColor: COLORS.gold,
-    borderLeftStyle: "solid",
+  paiementCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 0.8,
+    borderColor: COLORS.gold,
+    borderStyle: "solid",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  piedLabel: {
-    fontSize: 8,
-    color: COLORS.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
+  paiementCircleText: {
+    color: COLORS.gold,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
   },
-  piedTexte: {
-    fontSize: 10,
+  paiementMode: {
+    fontSize: 11,
     color: COLORS.text,
-    marginTop: 4,
+    fontFamily: "Helvetica",
   },
-  piedNumero: {
-    fontSize: 9,
+  paiementNumero: {
+    fontSize: 10,
     color: COLORS.textMuted,
     marginTop: 2,
   },
@@ -278,29 +315,59 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: COLORS.textMuted,
     fontStyle: "italic",
-    marginTop: 4,
+    marginTop: 10,
     lineHeight: 1.5,
   },
-  merci: {
-    marginTop: 24,
-    textAlign: "center",
-    fontSize: 9,
-    color: COLORS.textMuted,
-    letterSpacing: 3,
-    textTransform: "uppercase",
-  },
-  bottomBar: {
-    height: 6,
+
+  // Signature
+  signatureRow: {
     flexDirection: "row",
-    marginTop: "auto",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 40,
   },
-  bottomBarGold: {
-    flex: 1,
+  signatureLine: { flex: 1, height: 0.6, backgroundColor: COLORS.border },
+  signatureText: {
+    fontSize: 11,
+    color: COLORS.gold,
+    fontStyle: "italic",
+  },
+  signatureDots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 5,
+    marginTop: 14,
+  },
+  dotGreen: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: COLORS.green,
+  },
+  dotGold: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
     backgroundColor: COLORS.gold,
   },
-  bottomBarGreen: {
-    flex: 4,
+  dotGreenFaded: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
     backgroundColor: COLORS.green,
+    opacity: 0.4,
+  },
+
+  // Watermark
+  watermark: {
+    position: "absolute",
+    top: 200,
+    right: -80,
+    fontSize: 130,
+    color: COLORS.gold,
+    opacity: 0.05,
+    fontFamily: "Helvetica-Bold",
+    transform: "rotate(-90deg)",
   },
 });
 
@@ -311,27 +378,10 @@ function getInitiales(nom: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function CornerDots() {
-  const dots = [];
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
-      dots.push(
-        <Circle
-          key={`${r}-${c}`}
-          cx={c * 6 + 3}
-          cy={r * 6 + 3}
-          r={1.5}
-          fill={COLORS.gold}
-          opacity={0.25}
-        />,
-      );
-    }
-  }
-  return (
-    <Svg width={24} height={24} style={styles.ornament}>
-      {dots}
-    </Svg>
-  );
+function sousTitreFor(type: string) {
+  if (type === "Facture") return "Facture commerciale";
+  if (type === "Devis") return "Devis estimatif";
+  return "Facture proforma";
 }
 
 export function FacturePDFDocument({
@@ -344,190 +394,227 @@ export function FacturePDFDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.topBar}>
-          <View style={styles.topBarGreen} />
-          <View style={styles.topBarGold} />
+        {/* Watermark */}
+        <Text style={styles.watermark} fixed>
+          {d.typeDocument.toUpperCase()}
+        </Text>
+
+        {/* Top wordmark */}
+        <View style={styles.topRule}>
+          <View style={styles.topRuleLine} />
+          <Text style={styles.topWordmark}>
+            <Text style={styles.topWordmarkAccent}>PROFORMA</Text>AFRICA
+          </Text>
+          <View style={styles.topRuleLine} />
         </View>
 
-        <CornerDots />
+        {/* Big title block */}
+        <View style={styles.titleBlock}>
+          <Text style={styles.subTitle}>{sousTitreFor(d.typeDocument)}</Text>
+          <Text style={styles.bigTitle}>{d.typeDocument.toUpperCase()}</Text>
+          <View style={styles.numberRow}>
+            <View style={styles.numberRule} />
+            <Text style={styles.numberText}>{d.numeroFacture}</Text>
+            <View style={styles.numberRule} />
+          </View>
+          {(d.dateEmission || d.dateEcheance) && (
+            <Text style={styles.dates}>
+              {d.dateEmission ? `Émis le ${formatDateFr(d.dateEmission)}` : ""}
+              {d.dateEmission && d.dateEcheance ? "   •   " : ""}
+              {d.dateEcheance
+                ? `Échéance ${formatDateFr(d.dateEcheance)}`
+                : ""}
+            </Text>
+          )}
+        </View>
 
-        <View style={styles.body}>
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
+        {/* De / À */}
+        <View style={styles.twoCol}>
+          <View style={styles.divider} />
+          <View style={styles.colDe}>
+            <View style={styles.partyHeader}>
               {d.logoEntreprise ? (
-                <Image style={styles.logo} src={d.logoEntreprise} />
+                <Image
+                  src={d.logoEntreprise}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    objectFit: "contain",
+                    borderRadius: 3,
+                  }}
+                />
               ) : (
-                <View style={styles.logoInitiales}>
-                  <Text style={styles.logoInitialesText}>
+                <View style={styles.initialeBox}>
+                  <Text style={styles.initialeText}>
                     {getInitiales(d.nomEntreprise || "Entreprise")}
                   </Text>
                 </View>
               )}
-              <Text style={styles.nomEntreprise}>
-                {d.nomEntreprise || "Votre entreprise"}
-              </Text>
-              {(d.villeEntreprise || d.paysEntreprise) && (
-                <Text style={styles.texteGris}>
-                  {[d.villeEntreprise, d.paysEntreprise]
-                    .filter(Boolean)
-                    .join(", ")}
-                </Text>
-              )}
-              {d.emailEntreprise ? (
-                <Text style={styles.texteGris}>{d.emailEntreprise}</Text>
-              ) : null}
-              {d.telephoneEntreprise ? (
-                <Text style={styles.texteGris}>{d.telephoneEntreprise}</Text>
-              ) : null}
+              <Text style={styles.smallLabel}>DE</Text>
             </View>
-            <View style={styles.headerRight}>
-              <Text style={styles.typeDocument}>
-                {d.typeDocument.toUpperCase()}
+            <Text style={styles.partyName}>
+              {d.nomEntreprise || "Votre entreprise"}
+            </Text>
+            {(d.villeEntreprise || d.paysEntreprise) && (
+              <Text style={styles.partyText}>
+                {[d.villeEntreprise, d.paysEntreprise]
+                  .filter(Boolean)
+                  .join(", ")}
               </Text>
-              <View style={styles.numeroPill}>
-                <Text style={styles.numeroPillText}>
-                  N° {d.numeroFacture}
+            )}
+            {d.emailEntreprise ? (
+              <Text style={styles.partyText}>{d.emailEntreprise}</Text>
+            ) : null}
+            {d.telephoneEntreprise ? (
+              <Text style={styles.partyText}>{d.telephoneEntreprise}</Text>
+            ) : null}
+          </View>
+          <View style={styles.colA}>
+            <View style={styles.partyHeader}>
+              <View style={styles.initialeBoxClient}>
+                <Text style={styles.initialeTextClient}>
+                  {getInitiales(d.nomClient || "Client")}
                 </Text>
               </View>
-              {d.dateEmission ? (
-                <Text style={styles.metaText}>
-                  Émis le {formatDateFr(d.dateEmission)}
-                </Text>
-              ) : null}
-              {d.dateEcheance ? (
-                <Text style={styles.metaText}>
-                  Échéance: {formatDateFr(d.dateEcheance)}
-                </Text>
-              ) : null}
+              <Text style={styles.smallLabel}>À L'ATTENTION DE</Text>
             </View>
-          </View>
-
-          <View style={styles.clientCard}>
-            <Text style={styles.labelSection}>FACTURÉ À</Text>
-            <Text style={styles.nomClient}>
+            <Text style={styles.partyName}>
               {d.nomClient || "Nom du client"}
             </Text>
             {d.entrepriseClient ? (
-              <Text style={styles.texteGris}>{d.entrepriseClient}</Text>
+              <Text style={styles.partyText}>{d.entrepriseClient}</Text>
             ) : null}
             {(d.villeClient || d.paysClient) && (
-              <Text style={styles.texteGris}>
+              <Text style={styles.partyText}>
                 {[d.villeClient, d.paysClient].filter(Boolean).join(", ")}
               </Text>
             )}
             {d.emailClient ? (
-              <Text style={styles.texteGris}>{d.emailClient}</Text>
+              <Text style={styles.partyText}>{d.emailClient}</Text>
             ) : null}
             {d.telephoneClient ? (
-              <Text style={styles.texteGris}>{d.telephoneClient}</Text>
+              <Text style={styles.partyText}>{d.telephoneClient}</Text>
             ) : null}
           </View>
+        </View>
 
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, { flex: 3 }]}>
-              Description
-            </Text>
-            <Text
-              style={[
-                styles.tableHeaderText,
-                { flex: 0.6, textAlign: "right" },
-              ]}
-            >
-              Qté
-            </Text>
-            <Text
-              style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
-            >
-              P.U.
-            </Text>
-            <Text
-              style={[
-                styles.tableHeaderText,
-                { flex: 0.6, textAlign: "right" },
-              ]}
-            >
-              TVA
-            </Text>
-            <Text
-              style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
-            >
-              Total
-            </Text>
-          </View>
+        {/* Section header */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.smallLabel}>DÉTAIL DES SERVICES</Text>
+          <View style={styles.sectionLine} />
+        </View>
 
-          {d.lignes.map((l, idx) => {
-            const totalLigne = l.quantite * l.prixUnitaire * (1 + l.tva / 100);
-            return (
-              <View
-                key={l.id}
-                style={
-                  idx % 2 === 1
-                    ? [styles.tableRow, styles.tableRowAlt]
-                    : styles.tableRow
-                }
-              >
-                <Text style={styles.cellDescription}>
-                  {l.description || "—"}
-                </Text>
-                <Text style={styles.cellQte}>{l.quantite}</Text>
-                <Text style={styles.cellMoney}>
-                  {formatMontant(l.prixUnitaire, d.devise)}
-                </Text>
-                <Text style={styles.cellTva}>{l.tva}%</Text>
-                <Text style={styles.cellTotal}>
-                  {formatMontant(totalLigne, d.devise)}
-                </Text>
-              </View>
-            );
-          })}
-
-          <View style={styles.totauxContainer}>
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>Sous-total HT</Text>
-              <Text style={styles.totalValue}>
-                {formatMontant(sousTotal, d.devise)}
-              </Text>
-            </View>
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>TVA</Text>
-              <Text style={styles.totalValue}>
-                {formatMontant(totalTva, d.devise)}
-              </Text>
-            </View>
-            <View style={styles.totalTTCBox}>
-              <Text style={styles.totalTTCLabel}>Total TTC</Text>
-              <Text style={styles.totalTTCValue}>
-                {formatMontant(total, d.devise)}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.pied}>
-            <View style={styles.piedCard}>
-              <Text style={styles.piedLabel}>PAIEMENT</Text>
-              <Text style={styles.piedTexte}>{d.modePaiement}</Text>
-              {d.modePaiement === "Mobile Money" && d.numeroMobileMoney ? (
-                <Text style={styles.piedNumero}>{d.numeroMobileMoney}</Text>
-              ) : null}
-            </View>
-            {d.noteClient ? (
-              <View style={styles.piedCardNote}>
-                <Text style={styles.piedLabel}>NOTE</Text>
-                <Text style={styles.noteText}>{d.noteClient}</Text>
-              </View>
-            ) : (
-              <View style={{ flex: 1 }} />
-            )}
-          </View>
-
-          <Text style={styles.merci}>
-            ·  MERCI POUR VOTRE CONFIANCE  ·
+        {/* Table */}
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderText, { flex: 3 }]}>Description</Text>
+          <Text
+            style={[
+              styles.tableHeaderText,
+              { flex: 0.6, textAlign: "right" },
+            ]}
+          >
+            Qté
+          </Text>
+          <Text
+            style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
+          >
+            P.U.
+          </Text>
+          <Text
+            style={[
+              styles.tableHeaderText,
+              { flex: 0.6, textAlign: "right" },
+            ]}
+          >
+            TVA
+          </Text>
+          <Text
+            style={[styles.tableHeaderText, { flex: 1, textAlign: "right" }]}
+          >
+            Total
           </Text>
         </View>
 
-        <View style={styles.bottomBar}>
-          <View style={styles.bottomBarGold} />
-          <View style={styles.bottomBarGreen} />
+        {d.lignes.map((l) => {
+          const totalLigne = l.quantite * l.prixUnitaire * (1 + l.tva / 100);
+          return (
+            <View key={l.id} style={styles.tableRow}>
+              <Text style={styles.cellDescription}>{l.description || "—"}</Text>
+              <Text style={styles.cellQte}>{l.quantite}</Text>
+              <Text style={styles.cellMoney}>
+                {formatMontant(l.prixUnitaire, d.devise)}
+              </Text>
+              <Text style={styles.cellTva}>{l.tva}%</Text>
+              <Text style={styles.cellTotal}>
+                {formatMontant(totalLigne, d.devise)}
+              </Text>
+            </View>
+          );
+        })}
+
+        {/* Totaux */}
+        <View style={styles.totauxContainer}>
+          <View style={styles.totalLine}>
+            <Text style={styles.totalLabel}>Sous-total HT</Text>
+            <Text style={styles.totalValue}>
+              {formatMontant(sousTotal, d.devise)}
+            </Text>
+          </View>
+          <View style={styles.totalLine}>
+            <Text style={styles.totalLabel}>TVA</Text>
+            <Text style={styles.totalValue}>
+              {formatMontant(totalTva, d.devise)}
+            </Text>
+          </View>
+          <View style={styles.totalTTCBox}>
+            <View>
+              <Text style={styles.totalTTCLabel}>NET À PAYER</Text>
+              <Text style={styles.totalTTCSub}>Toutes taxes comprises</Text>
+            </View>
+            <Text style={styles.totalTTCValue}>
+              {formatMontant(total, d.devise)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Pied */}
+        <View style={styles.pied}>
+          <View style={styles.piedCol}>
+            <Text style={styles.smallLabel}>MODALITÉS DE PAIEMENT</Text>
+            <View style={styles.paiementRow}>
+              <View style={styles.paiementCircle}>
+                <Text style={styles.paiementCircleText}>$</Text>
+              </View>
+              <View>
+                <Text style={styles.paiementMode}>{d.modePaiement}</Text>
+                {d.modePaiement === "Mobile Money" && d.numeroMobileMoney ? (
+                  <Text style={styles.paiementNumero}>
+                    {d.numeroMobileMoney}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          </View>
+          {d.noteClient ? (
+            <View style={styles.piedCol}>
+              <Text style={styles.smallLabel}>NOTE</Text>
+              <Text style={styles.noteText}>« {d.noteClient} »</Text>
+            </View>
+          ) : (
+            <View style={styles.piedCol} />
+          )}
+        </View>
+
+        {/* Signature */}
+        <View style={styles.signatureRow}>
+          <View style={styles.signatureLine} />
+          <Text style={styles.signatureText}>Merci pour votre confiance</Text>
+          <View style={styles.signatureLine} />
+        </View>
+        <View style={styles.signatureDots}>
+          <View style={styles.dotGreen} />
+          <View style={styles.dotGold} />
+          <View style={styles.dotGreenFaded} />
         </View>
       </Page>
     </Document>
