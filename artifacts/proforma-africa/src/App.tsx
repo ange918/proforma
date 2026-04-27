@@ -10,10 +10,29 @@ import {
 import Formulaire from "@/components/Formulaire";
 import Apercu from "@/components/Apercu";
 import Historique from "@/components/Historique";
+import Hero from "@/components/Hero";
 import type { DonneesFacture, EntreeHistorique, TemplateService } from "@/types";
 import { genererNumero } from "@/lib/utils";
 
 type Onglet = "formulaire" | "apercu" | "historique";
+
+const STORAGE_KEY_COMMENCER = "proforma-africa:commencer:v1";
+
+function dejaCommence(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY_COMMENCER) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function marquerCommence() {
+  try {
+    localStorage.setItem(STORAGE_KEY_COMMENCER, "1");
+  } catch {
+    // ignore
+  }
+}
 
 const queryClient = new QueryClient();
 
@@ -127,6 +146,14 @@ function Page() {
   );
   const [showHistorique, setShowHistorique] = useState(false);
   const [onglet, setOnglet] = useState<Onglet>("formulaire");
+  const [vue, setVue] = useState<"hero" | "app">(() =>
+    dejaCommence() ? "app" : "hero"
+  );
+
+  function handleCommencer() {
+    marquerCommence();
+    setVue("app");
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -214,6 +241,8 @@ function Page() {
 
   return (
     <>
+      {vue === "hero" && <Hero onCommencer={handleCommencer} />}
+
       <div className="proforma-layout">
         <div
           className="proforma-panel"
