@@ -1,33 +1,84 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
-
-import Landing from "@/pages/Landing";
-import Dashboard from "@/pages/Dashboard";
-import Devis from "@/pages/Devis";
-import Factures from "@/pages/Factures";
-import Clients from "@/pages/Clients";
-import Parametres from "@/pages/Parametres";
-import NouveauDevis from "@/pages/NouveauDevis";
-import NouvelleFacture from "@/pages/NouvelleFacture";
+import Formulaire from "@/components/Formulaire";
+import Apercu from "@/components/Apercu";
+import type { DonneesFacture } from "@/types";
+import { genererNumero } from "@/lib/utils";
 
 const queryClient = new QueryClient();
 
-function Router() {
+function donneesInitiales(): DonneesFacture {
+  const today = new Date().toISOString().slice(0, 10);
+  const echeance = new Date();
+  echeance.setDate(echeance.getDate() + 30);
+  return {
+    nomEntreprise: "",
+    villeEntreprise: "",
+    paysEntreprise: "",
+    emailEntreprise: "",
+    telephoneEntreprise: "",
+    logoEntreprise: null,
+    nomClient: "",
+    entrepriseClient: "",
+    villeClient: "",
+    paysClient: "",
+    emailClient: "",
+    telephoneClient: "",
+    numeroFacture: genererNumero("Facture"),
+    typeDocument: "Facture",
+    dateEmission: today,
+    dateEcheance: echeance.toISOString().slice(0, 10),
+    devise: "XOF",
+    modePaiement: "Mobile Money",
+    numeroMobileMoney: "",
+    lignes: [
+      {
+        id: "init-1",
+        description: "",
+        quantite: 1,
+        prixUnitaire: 0,
+        tva: 18,
+      },
+    ],
+    noteClient: "",
+  };
+}
+
+function Page() {
+  const [donnees, setDonnees] = useState<DonneesFacture>(() =>
+    donneesInitiales(),
+  );
+
   return (
-    <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/devis" component={Devis} />
-      <Route path="/devis/nouveau" component={NouveauDevis} />
-      <Route path="/factures" component={Factures} />
-      <Route path="/factures/nouvelle" component={NouvelleFacture} />
-      <Route path="/clients" component={Clients} />
-      <Route path="/parametres" component={Parametres} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      <div className="proforma-layout">
+        <Formulaire donnees={donnees} setDonnees={setDonnees} />
+        <Apercu donnees={donnees} />
+      </div>
+      <style>{`
+        .proforma-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          height: 100vh;
+          width: 100%;
+          overflow: hidden;
+        }
+        @media (max-width: 1024px) {
+          .proforma-layout {
+            grid-template-columns: minmax(0, 1fr);
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+          }
+          .proforma-layout > div {
+            height: auto !important;
+            min-height: 100vh;
+          }
+        }
+      `}</style>
+    </>
   );
 }
 
@@ -35,9 +86,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
+        <Page />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

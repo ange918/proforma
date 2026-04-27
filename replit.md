@@ -26,6 +26,6 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 ## Artifacts
 
-- **proforma-africa** (`/`) — ProformaAfrica: quote and invoice generator for francophone African freelancers and SMEs. React + Vite + wouter, frontend-only with mock data. Phosphor icons, Unbounded + Plus Jakarta Sans typography, custom green/gold design system via raw CSS variables in `src/index.css`.
+- **proforma-africa** (`/`) — ProformaAfrica: single-page invoice/quote/proforma generator for francophone African freelancers and SMEs. React + Vite, frontend-only (no routing, no backend, no DB). Form on left + live preview on right + PDF download. PDF generation via `@react-pdf/renderer` + `file-saver`. Phosphor icons, Unbounded + Plus Jakarta Sans typography, custom green/gold design system via raw CSS variables in `src/index.css`. Key files: `src/App.tsx` (single page), `src/components/Formulaire.tsx`, `src/components/Apercu.tsx`, `src/components/FacturePDF.tsx`, `src/lib/utils.ts`, `src/types.ts`.
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
