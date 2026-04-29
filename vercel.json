@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm --filter @workspace/proforma-africa run build",
+  "outputDirectory": "artifacts/proforma-africa/dist/public",
+  "installCommand": "pnpm install",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
