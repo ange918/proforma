@@ -1,127 +1,88 @@
 import { useState } from "react";
-import { ACCENT, CARD, BORDER, MUTED } from "../lib/constants";
+import { TEXT, MUTED, YELLOW, PURPLE, WHITE, BORDER } from "../lib/constants";
 
 const ITEMS = [
-  {
-    q: "Quels types de projets acceptez-vous ?",
-    a: "J'accepte tous les projets web et mobile : sites vitrines, e-commerce, applications mobiles Flutter, dashboards, SaaS, APIs. Si vous avez un projet digital, on peut en discuter.",
-  },
-  {
-    q: "Quels sont vos délais de livraison ?",
-    a: "Les délais varient selon la complexité du projet. Un site vitrine peut être livré en 1 à 2 semaines, tandis qu'une application complète peut prendre 4 à 8 semaines. Je définis toujours un planning clair dès le début.",
-  },
-  {
-    q: "Travaillez-vous en remote avec des clients hors du Bénin ?",
-    a: "Oui, absolument. Je travaille avec des clients partout en Afrique et dans le monde entier. Toutes les communications et livraisons se font en ligne, sans contrainte géographique.",
-  },
-  {
-    q: "Comment se passe le processus de travail ?",
-    a: "On commence par un appel pour cadrer votre projet, puis je prépare un devis détaillé. Après validation, je développe en itérations avec des points réguliers. Vous êtes impliqué à chaque étape clé.",
-  },
-  {
-    q: "Proposez-vous une maintenance après livraison ?",
-    a: "Oui, je propose un accompagnement post-livraison. On peut définir un contrat de maintenance mensuel pour assurer les mises à jour, corrections et évolutions de votre projet.",
-  },
-  {
-    q: "Quelles sont vos conditions de paiement ?",
-    a: "En général, 40% à la signature du contrat, 30% à mi-projet et 30% à la livraison finale. Des modalités flexibles peuvent être discutées selon le projet.",
-  },
+  { q:"Quels types de projets acceptez-vous ?",                         a:"J'accepte tous les projets web et mobile : sites vitrines, e-commerce, apps Flutter, dashboards, SaaS, APIs. Si vous avez un projet digital, on peut en discuter." },
+  { q:"Quels sont vos délais de livraison ?",                           a:"Un site vitrine peut être livré en 1 à 2 semaines. Une application complète prend 4 à 8 semaines. Je définis toujours un planning clair dès le début." },
+  { q:"Travaillez-vous en remote avec des clients hors du Bénin ?",     a:"Oui, absolument. Je travaille avec des clients partout en Afrique et dans le monde entier. Toutes les communications et livraisons se font en ligne." },
+  { q:"Comment se passe le processus de travail ?",                     a:"On commence par un appel de cadrage, puis je prépare un devis détaillé. Après validation, je développe en itérations avec des points réguliers." },
+  { q:"Proposez-vous une maintenance après livraison ?",                a:"Oui, je propose un accompagnement post-livraison. Un contrat de maintenance mensuel peut être défini pour assurer les mises à jour et corrections." },
+  { q:"Quelles sont vos conditions de paiement ?",                     a:"40% à la signature, 30% à mi-projet, 30% à la livraison. Des modalités flexibles peuvent être discutées selon le projet." },
 ];
 
 export default function FAQ() {
-  const [open, setOpen] = useState<number | null>(null);
+  const [open, setOpen] = useState<number|null>(null);
 
   return (
-    <section
-      id="faq"
-      style={{
-        padding: "100px 24px",
-        background: "#0e0e0e",
-        borderTop: `1px solid ${BORDER}`,
-        borderBottom: `1px solid ${BORDER}`,
-      }}
-    >
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <div style={{ marginBottom: 56 }}>
-          <p style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", fontFamily: "Inter, sans-serif", marginBottom: 12, textTransform: "uppercase" }}>
-            FAQ
-          </p>
-          <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 400, color: "#f0f0ee", lineHeight: 1.05 }}>
-            Questions fréquentes.
-          </h2>
+    <section id="faq" style={{ background: "#f0ece4", padding: "90px 28px", borderTop: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+
+        <div style={{
+          fontFamily: "'Anton', 'Arial Black', Impact, sans-serif",
+          fontSize: "clamp(60px, 11vw, 150px)",
+          fontWeight: 400, lineHeight: 0.9,
+          letterSpacing: "-0.01em", color: TEXT,
+          marginBottom: 52,
+        }}>
+          <div>QUESTIONS</div>
+          <div>FRÉQUENTES.</div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {ITEMS.map((item, i) => (
-            <div
-              key={i}
-              style={{
-                background: CARD,
-                border: `1px solid ${open === i ? "rgba(202,255,0,0.2)" : BORDER}`,
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {ITEMS.map((item, i) => {
+            const isOpen = open === i;
+            const bg = i % 3 === 0 ? YELLOW : i % 3 === 1 ? WHITE : WHITE;
+            return (
+              <div key={i} style={{
+                background: isOpen ? PURPLE : bg,
+                borderRadius: bg === YELLOW ? 0 : 10,
                 overflow: "hidden",
-                transition: "border-color 0.2s",
-              }}
-            >
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                style={{
-                  width: "100%",
-                  background: "none",
-                  border: "none",
+                boxShadow: bg === WHITE && !isOpen ? "0 2px 10px rgba(0,0,0,0.07)" : "none",
+                transition: "background 0.22s",
+              }}>
+                <button onClick={() => setOpen(isOpen ? null : i)} style={{
+                  width: "100%", background: "none", border: "none",
                   padding: "20px 24px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  gap: 16,
-                  textAlign: "left",
-                }}
-              >
-                <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 15, color: "#f0f0ee" }}>
-                  {item.q}
-                </span>
-                <span
-                  style={{
-                    color: open === i ? ACCENT : "#555",
-                    fontSize: 20,
-                    flexShrink: 0,
-                    transform: open === i ? "rotate(45deg)" : "rotate(0deg)",
-                    transition: "transform 0.2s, color 0.2s",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  cursor: "pointer", gap: 16, textAlign: "left",
+                }}>
+                  <span style={{
+                    fontFamily: "'Anton', sans-serif", fontSize: "clamp(15px,2.2vw,18px)",
+                    fontWeight: 400,
+                    color: isOpen ? "#fff" : TEXT,
+                  }}>{item.q}</span>
+                  <span style={{
+                    fontSize: 22, flexShrink: 0,
+                    color: isOpen ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.3)",
+                    transform: isOpen ? "rotate(45deg)" : "none",
+                    transition: "transform 0.2s",
                     lineHeight: 1,
-                  }}
-                >
-                  +
-                </span>
-              </button>
-              {open === i && (
-                <div style={{ padding: "0 24px 20px" }}>
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: 14, color: MUTED, lineHeight: 1.7 }}>
-                    {item.a}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+                  }}>+</span>
+                </button>
+                {isOpen && (
+                  <div style={{ padding: "0 24px 22px" }}>
+                    <p style={{
+                      fontFamily: "sans-serif", fontSize: 14, lineHeight: 1.7,
+                      color: "rgba(255,255,255,0.85)",
+                    }}>{item.a}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        <div style={{ marginTop: 48, textAlign: "center" }}>
-          <p style={{ fontFamily: "Inter, sans-serif", fontSize: 14, color: MUTED, marginBottom: 16 }}>
+        <div style={{ textAlign: "center", marginTop: 48 }}>
+          <p style={{ fontFamily: "sans-serif", fontSize: 14, color: MUTED, marginBottom: 14 }}>
             Vous avez une autre question ?
           </p>
-          <a
-            href="#contact"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: 14,
-              fontWeight: 600,
-              color: ACCENT,
-              textDecoration: "none",
-              borderBottom: `1px solid rgba(202,255,0,0.3)`,
-              paddingBottom: 2,
-            }}
-          >
-            Écrivez-moi directement, je réponds en général sous 24h. →
-          </a>
+          <a href="#contact" style={{
+            display: "inline-block",
+            background: YELLOW, color: TEXT,
+            padding: "11px 24px",
+            fontFamily: "'Anton', sans-serif", fontSize: 16, fontWeight: 400,
+            textDecoration: "none", letterSpacing: "0.02em",
+          }}>POSER UNE QUESTION →</a>
         </div>
       </div>
     </section>

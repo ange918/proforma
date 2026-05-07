@@ -1,8 +1,9 @@
-export const ACCENT = "#caff00";
-export const BG = "#0b0b0b";
-export const CARD = "#141414";
-export const ELEVATED = "#1c1c1c";
-export const TEXT = "#f0f0ee";
-export const MUTED = "#888884";
-export const BORDER = "#242424";
+export const BG       = "#f0ece4";
+export const TEXT     = "#0d0d0d";
+export const MUTED    = "#6b6b65";
+export const YELLOW   = "#f9f277";
+export const PURPLE   = "#9b79e0";
+export const LPURPLE  = "#c4b5fd";
+export const WHITE    = "#ffffff";
+export const BORDER   = "#ddd9d0";
 export const WHATSAPP_NUMBER = "+22900000000"; // à remplacer
