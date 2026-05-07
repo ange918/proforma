@@ -1,0 +1,252 @@
+Bs.dev
+Accueil
+À propos
+Compétences
+Projets
+Avis
+FAQ
+Contact
+Me contacter
+Je Transforme vos idées en site web ou Application mobiles
+moderne et performant
+Full Stack Developer — Cotonou, Bénin
+
+Mes services
+Me contacter
+Services
+
+Ce que je réalise
+Des solutions digitales sur mesure pour vos projets.
+
+Sites Web Modernes
+Création de sites vitrines, portfolios et landing pages rapides, responsive et optimisés SEO.
+
+E-commerce & Boutiques
+Boutiques en ligne connectées WhatsApp ou avec passerelle de paiement.
+
+Applications Mobiles
+Applications cross-platform avec Flutter pour iOS et Android.
+
+Dashboards & SaaS
+Tableaux de bord sur mesure et plateformes SaaS pour vos équipes.
+
+Stratégie Digitale
+Conseil et mise en place d'une présence digitale efficace.
+
+APIs & Intégrations
+Connexion de vos outils via des APIs : paiement, messagerie, CRM, analytics.
+
+Ange Akonde
+Ange Akonde
+
+Full Stack Developer — Cotonou, Bénin
+
+Pourquoi moi
+
+Pourquoi me faire appel
+pour votre projet ?
+Chaque projet est une opportunité pour moi de créer quelque chose d'unique, sur mesure et performant pour mes clients. Je m'investis pleinement dans chaque mission comme si c'était la mienne.
+
+01
+Sur mesure avant tout
+Chaque projet est unique. Je ne utilise pas de templates génériques — je conçois et développe chaque site en partant de vos besoins réels.
+
+02
+Performance & rapidité
+Des sites rapides, optimisés et bien structurés. Votre audience ne doit jamais attendre — la performance est intégrée dès le départ.
+
+03
+Design soigné
+Un rendu visuel professionnel et moderne qui reflète votre image. Chaque détail compte pour donner confiance à vos visiteurs.
+
+04
+Accompagnement complet
+Je suis présent de l'idée à la mise en ligne, et au-delà. Vous n'êtes jamais seul face à votre projet digital.
+
+Projets
+
+Travaux sélectionnés.
+Models Academy Management
+01
+Éducation
+Models Academy Management
+Plateforme académique de suivi des étudiants et des modèles. Système de gestion complet avec inscription, planification et suivi des progrès.
+
+Voir le projet →
+Code-Capital
+02
+Communauté
+Code-Capital
+Communauté de développeurs et hub de ressources. Une plateforme fintech-dev connectant les codeurs avec des outils, du contenu et des ressources.
+
+Voir le projet →
+SusuniLab
+03
+Innovation
+SusuniLab
+Lab d'innovation collaboratif pour les projets tech africains. Un espace où les bâtisseurs africains se retrouvent pour idéer, prototyper et livrer.
+
+Voir le projet →
+God's Plan
+04
+Formation
+God's Plan
+Centre privé de formation professionnelle. Plateforme web complète pour la gestion des inscriptions, des formations et des filières.
+
+Voir le projet →
+Vano Baby
+05
+Vano Baby
+Site web créé dans le cadre du challenge des 10 ans de carrière de l'artiste béninois Vano Baby. Une expérience immersive célébrant une décennie de musique.
+
+Next.js
+Framer Motion
+Spotify API
+Voir le site →
+CosmeticsShop
+06
+CosmeticsShop
+Template e-commerce pour boutique de produits cosmétiques, intégré à WhatsApp pour recevoir les commandes directement sans passerelle de paiement.
+
+React
+Tailwind CSS
+WhatsApp API
+Voir le site →
+Portfolio Agnès ADANMENNOUKON
+07
+Portfolio Agnès ADANMENNOUKON
+Portfolio élégant pour Agnès ADANMENNOUKON, Créatrice de mode et Fondatrice de ISM laMAF Bénin. Vitrine de son univers créatif et de ses collections.
+
+Next.js
+Tailwind CSS
+Framer Motion
+Voir le site →
+MediSens
+08
+MediSens
+Plateforme médicale interactive de vulgarisation santé. Des modules dédiés à la compréhension des pathologies cardiovasculaires et rénales pour le grand public.
+
+Next.js
+Tailwind CSS
+Framer Motion
+Voir le site →
+Compétences
+
+Ma stack technique.
+HTML5
+CSS3
+JavaScript
+TypeScript
+React
+Next.js
+Node.js
+Express
+Flutter
+MongoDB
+Tailwind CSS
+Git
+0+
+Projets livrés
+0%
+Clients satisfaits
+0
+Pays clients
+0an+
+D'expérience
+Comment je travaille
+
+Les étapes d'un projet.
+De la première conversation à la livraison finale, voici comment je mène chaque projet de bout en bout.
+
+01
+Discussion
+Cadrage du projet
+
+On échange sur vos besoins, vos objectifs et votre vision. Un appel ou une réunion suffit pour poser les bases.
+
+02
+Signature
+Devis & Contrat
+
+Un devis détaillé est établi, puis un contrat clair définit les délais, livrables et conditions de collaboration.
+
+03
+Développement
+Conception & Code
+
+Je conçois et développe votre solution par itérations. Vous suivez l'avancement à chaque étape clé.
+
+04
+Tests
+Validation & QA
+
+Tests fonctionnels, corrections et validation avec vous pour garantir un produit fiable avant la mise en ligne.
+
+05
+Livraison
+Déploiement
+
+Mise en production du projet, formation à l'utilisation et transfert complet des accès et sources.
+
+06
+Support
+Suivi & Maintenance
+
+Un accompagnement post-livraison pour corriger, faire évoluer et maintenir votre solution dans le temps.
+
+Démarrer un projet →
+Première consultation gratuite
+
+FAQ
+
+Questions fréquentes.
+
+Quels types de projets acceptez-vous ?
+
+Quels sont vos délais de livraison ?
+
+Travaillez-vous en remote avec des clients hors du Bénin ?
+
+Comment se passe le processus de travail ?
+
+Proposez-vous une maintenance après livraison ?
+
+Quelles sont vos conditions de paiement ?
+Vous avez une autre question ?
+
+Écrivez-moi directement, je réponds en général sous 24h.
+
+Poser une question →
+Témoignages
+
+Ce que disent les clients.
+“
+Ange a transformé ma vision en une plateforme élégante et moderne. Son sens du détail et sa capacité à comprendre ce dont nous avions besoin m'ont impressionné. Un travail vraiment remarquable du début à la fin.
+
+M
+Morille
+
+Artiste & Directeur Créatif
+
+★
+★
+★
+★
+★
+
+
+
+Prêt à construire avec moi ?
+Décrivez votre projet en quelques mots. Je réponds sous 24h.
+
+Nom
+Votre nom
+Message
+Décrivez votre projet...
+Envoyer sur WhatsApp →
+© BigSixteen 2026. Tous droits réservés.
+À propos
+Projets
+Contact
+GitHub
+Cotonou, Bénin
