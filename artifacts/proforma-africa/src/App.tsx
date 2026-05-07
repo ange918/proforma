@@ -1,6 +1,5 @@
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import HeroSection from "./components/HeroSection";
 import Services from "./components/Services";
 import WhyMe from "./components/WhyMe";
 import Projects from "./components/Projects";
@@ -17,7 +16,6 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <HeroSection />
         <Services />
         <WhyMe />
         <Projects />
